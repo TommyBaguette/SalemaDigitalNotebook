@@ -28,7 +28,7 @@
         </div>
       </div>
       <p style="text-align:center">Total: {{ totalMesa }} / 20</p>
-      <button @click="lancarRonda" :disabled="loading" class="btn-action">Registar ✅</button>
+      <button @click="lancarRonda" :disabled="loading" class="btn-action">Anotar </button>
     </div>
 
     <div v-else class="card game-over">

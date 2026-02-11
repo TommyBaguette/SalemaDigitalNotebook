@@ -27,3 +27,11 @@ async function request(action, payload = {}) {
     throw e;
   }
 }
+
+export async function apiGetAllPlayers() {
+  return request("getAllPlayers");
+}
+
+export async function apiGetHistory() {
+  return request("getHistory");
+}

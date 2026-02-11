@@ -5,6 +5,7 @@
       <div class="tabs" v-if="!jogoAtivo">
         <button @click="tab = 'inicio'" :class="{active: tab==='inicio'}">Jogar</button>
         <button @click="tab = 'ranking'" :class="{active: tab==='ranking'}">Ranking</button>
+        <button @click="tab = 'historico'" :class="{active: tab==='historico'}">Historico</button>
       </div>
     </header>
 
@@ -17,6 +18,7 @@
     <div v-else>
       <StartScreen v-if="tab === 'inicio'" @game-started="entrarNoJogo" />
       <RankingScreen v-if="tab === 'ranking'" />
+      <HistoryScreen v-if="tab === 'historico'" />
     </div>
 
   </div>
@@ -27,6 +29,7 @@ import { ref } from 'vue';
 import StartScreen from './components/StartScreen.vue';
 import GameScreen from './components/GameScreen.vue';
 import RankingScreen from './components/RankingScreen.vue';
+import HistoryScreen from './components/HistoryScreen.vue';
 
 const tab = ref('inicio');
 const jogoAtivo = ref(null); 

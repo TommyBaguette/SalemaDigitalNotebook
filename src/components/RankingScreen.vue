@@ -42,7 +42,7 @@
         <small>
           <span class="danger-icon">☠️</span> Derrotas | 
           <img src="/dama.jpg" alt="Dama" class="icon-dama-small"> Salemas/Jogo | 
-          <span class="icon-20-small">20</span> Cargas/Jogo
+          <span class="icon-20-small">20</span> 20s/Jogo
         </small>
       </p>
     </div>
