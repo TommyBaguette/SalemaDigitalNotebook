@@ -8,10 +8,6 @@ export async function apiAddRound(gameId, roundScores) {
   return request("addRound", { gameId, roundScores });
 }
 
-export async function apiGetRanking() {
-  return request("getRanking");
-}
-
 async function request(action, payload = {}) {
   try {
     const response = await fetch(API_URL, {
@@ -34,4 +30,8 @@ export async function apiGetAllPlayers() {
 
 export async function apiGetHistory() {
   return request("getHistory");
+}
+
+export async function apiGetRanking(mes = null) {
+  return request("getRanking", { month: mes });
 }
