@@ -4,8 +4,8 @@ export async function apiCreateGame(players) {
   return request("createGame", { players });
 }
 
-export async function apiAddRound(gameId, roundScores) {
-  return request("addRound", { gameId, roundScores });
+export async function apiAddRound(gameId, roundScores, salemaPlayerIndex) {
+  return request("addRound", { gameId, roundScores, salemaPlayerIndex });
 }
 
 async function request(action, payload = {}) {

@@ -6,12 +6,10 @@
         <span class="game-id">Game #{{ game.gameId }}</span>
         <button @click="$emit('exit')" class="btn-text">Sair</button>
       </div>
-
       <div class="scoreboard-summary">
         <div v-for="(p, i) in game.players" :key="i" class="player-score-box">
           <span class="p-name">{{ p }}</span>
-          <span class="p-total" 
-            :class="{'danger': game.currentTotals[i] >= 80, 'eliminated': game.currentTotals[i] >= 100}">
+          <span class="p-total" :class="{'danger': game.currentTotals[i] >= 80, 'eliminated': game.currentTotals[i] >= 100}">
             {{ game.currentTotals[i] }}
           </span>
         </div>
@@ -27,23 +25,25 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(ronda, rIndex) in game.rounds" :key="rIndex">
+          <tr v-for="(item, rIndex) in historicoAcumulado" :key="rIndex">
             <td class="round-num">{{ rIndex + 1 }}</td>
-            <td v-for="(score, sIndex) in ronda.scores" :key="sIndex">
-              <span :class="{'highlight-carga': ronda.isCleanSweep && score === 0, 'highlight-salema': score >= 20}">
-                {{ score }}
-              </span>
+            <td v-for="(totalJogador, sIndex) in item.totaisNaAltura" :key="sIndex">
+              
+              <div class="score-cell" :class="{ 'hero-scribble': item.isCleanSweep && item.pontosNestaRonda[sIndex] === 0 }">
+                <span class="score-value">{{ item.pontosNestaRonda[sIndex] === 0 ? '-' : totalJogador }}</span>
+
+                <sup v-if="item.salemaIndex === sIndex || (item.isCleanSweep && item.pontosNestaRonda[sIndex] === 20)" 
+                     class="salema-star">*</sup>
+              </div>
+
             </td>
           </tr>
         </tbody>
       </table>
-      
       <div style="height: 80px;"></div>
     </div>
 
-    <button class="fab-add" @click="showModal = true" v-if="game.status === 'ACTIVE'">
-      + Anotar Ronda
-    </button>
+    <button class="fab-add" @click="abrirModal" v-if="game.status === 'ACTIVE'">+ Anotar Ronda</button>
 
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-content">
@@ -54,9 +54,16 @@
 
         <div class="inputs-list">
           <div v-for="(p, i) in game.players" :key="i" class="player-input-row">
-            <label>{{ p }}</label>
+            
+            <div class="player-label-area" @click="setSalemaManual(i)">
+               <label>{{ p }}</label>
+               <span class="dama-toggle" :class="{ 'active': quemTemSalema === i }" title="Quem tem a Dama?">
+                 🂭
+               </span>
+            </div>
+
             <div class="input-wrapper">
-              <input type="number" v-model.number="pontos[i]" class="score-input" min="0" max="20">
+              <input type="number" v-model.number="pontos[i]" class="score-input" min="0" max="20" @input="checkSalemaAuto">
               <button class="btn-carga" @click="aplicarCarga(i)">20</button>
             </div>
           </div>
@@ -65,8 +72,8 @@
         <div class="actions-area">
           <p class="total-info">
             Total: <strong>{{ totalMesa }}</strong>
-            <span v-if="totalMesa === 80" class="status-ok"> (Looking twenty! 🔥)</span>
-            <span v-else-if="totalMesa === 20" class="status-ok"> (Ok 👍)</span>
+            <span v-if="totalMesa === 80" class="status-ok"> Looking twenty</span>
+            <span v-else-if="totalMesa === 20" class="status-ok"> Conta certa</span>
           </p>
           <button @click="lancarRonda" :disabled="loading" class="btn-action">Guardar</button>
         </div>
@@ -75,7 +82,7 @@
 
     <div v-if="game.status === 'FINISHED'" class="game-over-banner">
       <h2>🏆 Jogo Terminado!</h2>
-      <button @click="$emit('exit')" class="btn-action">Voltar ao Menu</button>
+      <button @click="$emit('exit')" class="btn-action">Voltar</button>
     </div>
 
   </div>
@@ -90,18 +97,65 @@ const emit = defineEmits(['exit']);
 
 const game = ref(props.initialGame);
 const pontos = ref([0,0,0,0,0]);
+const quemTemSalema = ref(null);
 const loading = ref(false);
 const showModal = ref(false);
 
 const totalMesa = computed(() => pontos.value.reduce((a, b) => a + b, 0));
 
-function aplicarCarga(heroIndex) {
-  pontos.value = pontos.value.map((_, index) => index === heroIndex ? 0 : 20);
+const historicoAcumulado = computed(() => {
+  let totais = [0, 0, 0, 0, 0];
+  return game.value.rounds.map(ronda => {
+    const novosTotais = totais.map((ant, i) => ant + ronda.scores[i]);
+    totais = novosTotais;
+    return {
+      totaisNaAltura: novosTotais,
+      pontosNestaRonda: ronda.scores,
+      isCleanSweep: ronda.isCleanSweep,
+      salemaIndex: ronda.salemaIndex 
+    };
+  });
+});
+
+function abrirModal() {
+  pontos.value = [0,0,0,0,0];
+  quemTemSalema.value = null;
+  showModal.value = true;
 }
 
 function fecharModal() {
   showModal.value = false;
-  pontos.value = [0,0,0,0,0]; 
+}
+
+function aplicarCarga(heroIndex) {
+  pontos.value = pontos.value.map((_, index) => index === heroIndex ? 0 : 20);
+  quemTemSalema.value = null;
+}
+
+function setSalemaManual(index) {
+  quemTemSalema.value = index;
+}
+
+function checkSalemaAuto() {
+  if (totalMesa.value >= 70) return;
+
+  let maxPoints = -1;
+  let maxIndex = -1;
+  let countMax = 0;
+
+  pontos.value.forEach((p, i) => {
+    if (p > maxPoints) {
+      maxPoints = p;
+      maxIndex = i;
+      countMax = 1;
+    } else if (p === maxPoints) {
+      countMax++;
+    }
+  });
+
+  if (countMax === 1 && maxPoints > 0) {
+    quemTemSalema.value = maxIndex;
+  }
 }
 
 async function lancarRonda() {
@@ -114,12 +168,16 @@ async function lancarRonda() {
     return;
   }
 
+  if (totalMesa.value === 20 && quemTemSalema.value === null) {
+    alert("Quem levou a Salema (Dama de Espadas)?\n\nClica no ícone 🂭 ao lado do nome do jogador.");
+    return;
+  }
+
   loading.value = true;
   try {
-    const dados = await apiAddRound(game.value.gameId, pontos.value);
+    const dados = await apiAddRound(game.value.gameId, pontos.value, quemTemSalema.value);
     if (dados.game) game.value = dados.game;
-    pontos.value = [0,0,0,0,0];
-    showModal.value = false; 
+    fecharModal();
   } catch (e) {
     alert(e.message);
   } finally {
@@ -130,11 +188,9 @@ async function lancarRonda() {
 
 <style scoped>
 .game-screen { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-
 .fixed-header { background: #1a1a1a; padding: 10px; border-bottom: 1px solid #333; z-index: 10; }
 .top-bar { display: flex; justify-content: space-between; color: #888; font-size: 0.8rem; margin-bottom: 10px; }
 .btn-text { background: none; border: none; color: #aaa; text-decoration: underline; cursor:pointer;}
-
 .scoreboard-summary { display: flex; justify-content: space-between; text-align: center; }
 .player-score-box { display: flex; flex-direction: column; width: 18%; }
 .p-name { font-size: 0.7rem; color: #aaa; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -145,52 +201,69 @@ async function lancarRonda() {
 .history-container { flex: 1; overflow-y: auto; padding: 10px; }
 .history-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; }
 .history-table th { color: #42b983; padding: 8px; border-bottom: 1px solid #444; position: sticky; top: 0; background: #1a1a1a; }
-.history-table td { padding: 8px; border-bottom: 1px solid #333; color: #ccc; }
+.history-table td { padding: 5px; border-bottom: 1px solid #333; vertical-align: middle; }
 .round-col { color: #666; font-size: 0.7rem; width: 30px;}
 .round-num { color: #666; font-size: 0.8rem; }
 
-.highlight-carga { color: #f1c40f; font-weight: bold; border: 1px solid #f1c40f; border-radius: 50%; padding: 2px 5px; }
-.highlight-salema { color: #e74c3c; font-weight: bold; }
+.score-cell {
+  display: inline-flex; justify-content: center; align-items: center;
+  width: 35px; height: 35px; position: relative; font-weight: bold;
+  background: transparent; color: #ccc; font-size: 1.1rem;
+}
+.score-value { z-index: 1; }
+.hero-scribble {
+  background: repeating-linear-gradient(135deg, #444, #444 4px, #666 4px, #666 6px);
+  color: transparent; border: 1px solid #555; border-radius: 4px; 
+}
+.salema-star {
+  color: #e74c3c; font-size: 1.2rem; font-weight: bold;
+  position: absolute; top: -4px; right: -4px; line-height: 1; z-index: 2;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+}
 
 .fab-add { 
   position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: #3498db; color: white; border: none; 
-  padding: 15px 30px; border-radius: 30px; 
-  font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-  z-index: 20;
+  background: #3498db; color: white; border: none; padding: 15px 30px; border-radius: 30px; 
+  font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 20;
 }
 
 .modal-overlay { 
   position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-  background: rgba(0,0,0,0.85); z-index: 100;
-  display: flex; justify-content: center; align-items: flex-end; 
+  background: rgba(0,0,0,0.85); z-index: 100; display: flex; justify-content: center; align-items: flex-end; 
 }
 .modal-content { 
   background: #2d2d2d; width: 100%; max-width: 500px; 
-  border-radius: 20px 20px 0 0; padding: 20px; 
-  animation: slideUp 0.3s ease-out;
+  border-radius: 20px 20px 0 0; padding: 20px; animation: slideUp 0.3s ease-out;
 }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
 .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 .btn-close { background: none; border: none; color: #aaa; font-size: 1.5rem; padding: 0 10px; }
 
 .inputs-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
 .player-input-row { display: flex; align-items: center; justify-content: space-between; }
-.player-input-row label { width: 30%; font-weight: bold; color: #ddd; }
-.input-wrapper { display: flex; gap: 8px; width: 65%; }
-.score-input { width: 100%; padding: 12px; text-align: center; background: #333; border: 1px solid #555; color: white; border-radius: 8px; font-weight: bold; font-size: 1.2rem; }
+
+.player-label-area { 
+  width: 30%; display: flex; align-items: center; gap: 8px; cursor: pointer; 
+}
+.player-label-area label { font-weight: bold; color: #ddd; overflow: hidden; text-overflow: ellipsis; }
+
+.dama-toggle { 
+  font-size: 1.2rem; color: #444; transition: 0.2s; 
+}
+.dama-toggle.active { 
+  color: #e74c3c; text-shadow: 0 0 5px rgba(231, 76, 60, 0.5); transform: scale(1.2); 
+}
+
+.input-wrapper { display: flex; gap: 8px; width: 65%; align-items: center; }
+.score-input { width: 100%; padding: 12px; text-align: center; background: #333; border: 1px solid #555; color: rgb(138, 132, 132); border-radius: 8px; font-weight: bold; font-size: 1.2rem; }
 
 .btn-carga {
-  background: #f1c40f; border: none; border-radius: 8px;
-  width: 55px; height: 100%;
-  font-size: 1.1rem; font-weight: bold; color: #333;
-  display: flex; justify-content: center; align-items: center; padding: 0;
+  background: #000000; border: none; border-radius: 8px; width: 55px; height: 100%;
+  font-size: 1.1rem; font-weight: bold; color: #bebcbc; display: flex; justify-content: center; align-items: center; padding: 0;
 }
 
 .total-info { text-align: center; margin-bottom: 15px; color: #aaa; font-size: 1.1rem; }
 .status-ok { color: #42b983; font-weight: bold; }
 .btn-action { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; }
-
 .game-over-banner { text-align: center; padding: 20px; background: #1a1a1a; }
 </style>

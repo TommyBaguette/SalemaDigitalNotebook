@@ -1,6 +1,6 @@
 <template>
   <div class="card-container">
-    <h3>📜 Histórico de Partidas</h3>
+    <h3>Histórico de Partidas</h3>
     
     <div v-if="loading" class="loading">A carregar arquivo...</div>
     
@@ -21,7 +21,7 @@
             <span class="p-name">{{ player }}</span>
             <span class="p-score" :class="{'loser': game.currentTotals[i] >= 100}">
               {{ game.currentTotals[i] }}
-              <span v-if="game.currentTotals[i] >= 100">💀</span>
+              <span v-if="game.currentTotals[i] >= 100"></span>
             </span>
           </div>
         </div>

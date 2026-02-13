@@ -12,7 +12,7 @@
     <div v-if="loading" class="loading-text">A carregar dados...</div>
     
     <div v-else-if="lista.length === 0" class="empty-state">
-      Nenhum jogo registado neste mês. 🦗
+      Nenhum jogo registado neste mês.
     </div>
 
     <div v-else>
@@ -61,14 +61,12 @@ import { ref, onMounted } from 'vue';
 import { apiGetRanking } from '../services/api';
 
 const lista = ref([]);
-// Inicializa com o mês atual (formato YYYY-MM)
 const mesSelecionado = ref(new Date().toISOString().slice(0, 7));
 const loading = ref(false);
 
 async function carregarRanking() {
   loading.value = true;
   try {
-    // Passamos o mês escolhido para a API
     const dados = await apiGetRanking(mesSelecionado.value);
     lista.value = dados.ranking || [];
   } catch (e) {
@@ -79,7 +77,6 @@ async function carregarRanking() {
   }
 }
 
-// Carrega assim que abre
 onMounted(() => {
   carregarRanking();
 });
@@ -93,13 +90,11 @@ function calculaMedia(total, jogos) {
 <style scoped>
 .card { background: #2d2d2d; padding: 20px; border-radius: 12px; }
 
-/* Novo Header Flexível */
 .header-ranking { 
   display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; 
 }
 h3 { color: #f1c40f; margin: 0; font-size: 1.5rem; }
 
-/* Estilo do Seletor de Mês */
 .month-selector { 
   display: flex; align-items: center; gap: 10px; 
   background: #333; padding: 5px 15px; border-radius: 20px; border: 1px solid #444;
@@ -109,7 +104,6 @@ h3 { color: #f1c40f; margin: 0; font-size: 1.5rem; }
   background: transparent; border: none; color: white; 
   font-family: inherit; font-size: 1rem; cursor: pointer; outline: none;
 }
-/* Inverter cor do ícone de calendário no input (para browsers webkit) */
 .input-mes::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
 
 .loading-text { text-align: center; color: #888; margin: 20px 0; }
