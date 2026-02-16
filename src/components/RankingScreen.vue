@@ -101,7 +101,6 @@ async function carregarRanking() {
   try {
     const dados = await apiGetRanking(mesSelecionado.value);
     lista.value = dados.ranking || [];
-    // Define ordenação padrão ao carregar
     colunaAtual.value = 'totalPoints'; 
     ordemDesc.value = true;
   } catch (e) {
@@ -118,26 +117,23 @@ function ordenar(coluna) {
   } else {
     colunaAtual.value = coluna;
     
-    // Se for Pts/J, queremos começar Ascendente (Menor para Maior) porque o menor é o melhor.
-    // Para as outras (Pontos, Salemas), queremos Descendente (Maior para Menor).
     if (coluna === 'mediaPontos') {
-      ordemDesc.value = false; // Começa com o melhor (menor) em cima
+      ordemDesc.value = false;
     } else {
-      ordemDesc.value = true; // Começa com o maior em cima
+      ordemDesc.value = true;
     }
   }
 }
 
 function getSeta(coluna) {
   if (colunaAtual.value !== coluna) return '';
-  // Mostra seta invertida visualmente dependendo do tipo de ordenação, mas o básico funciona
   return ordemDesc.value ? '▼' : '▲';
 }
 
 function getValorOrdenacao(player, coluna) {
   if (coluna === 'mediaPontos') {
     if (!player.gamesPlayed || player.gamesPlayed === 0) {
-      return 999999; // CORREÇÃO: Se não jogou, vale "infinito" para ir para o fundo
+      return 999999; 
     }
     return player.totalPoints / player.gamesPlayed;
   }
@@ -161,7 +157,6 @@ const listaOrdenada = computed(() => {
         : valorA.localeCompare(valorB);
     }
 
-    // Ordenação Numérica Simples (A lógica de "quem é melhor" está no getValorOrdenacao ou no clique inicial)
     return ordemDesc.value ? valorB - valorA : valorA - valorB;
   });
 });
@@ -171,7 +166,7 @@ onMounted(() => {
 });
 
 function calculaMedia(total, jogos) {
-  if (!jogos || jogos === 0) return "-"; // Mostra traço se não jogou
+  if (!jogos || jogos === 0) return "-";
   return (total / jogos).toFixed(1);
 }
 </script>
@@ -197,11 +192,12 @@ h3 { color: #f1c40f; margin: 0; font-size: 1.5rem; }
 .empty-state { text-align: center; color: #666; font-style: italic; padding: 20px; }
 
 .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
 .ranking-table { 
   width: 100%; 
   border-collapse: collapse; 
   color: #eee; 
-  min-width: 420px;
+  min-width: 350px; 
 }
 
 th, td { 

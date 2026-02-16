@@ -1,56 +1,39 @@
-:root {
-  font-family: 'Segoe UI', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* src/style.css */
 
+:root {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.5;
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #1a1a1a;
+  background-color: #1a1a1a; /* Fundo escuro igual à app */
+}
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* --- RESET IMPORTANTE --- */
+*, *::before, *::after {
+  box-sizing: border-box; /* Impede que o padding aumente a largura */
 }
 
 body {
   margin: 0;
   padding: 0;
-  min-width: 320px;
+  width: 100vw;
   min-height: 100vh;
-  display: block; 
-  overflow-y: auto; 
-  overflow-x: hidden;
-  
   background-color: #1a1a1a;
+  
+  /* ESTAS LINHAS RESOLVEM O SCROLL */
+  display: block; /* Removemos o flex/center que bloqueava o scroll vertical */
+  overflow-x: hidden; /* Proíbe o scroll para os lados */
+  overflow-y: auto; /* Permite scroll para baixo se a lista for grande */
 }
 
 #app {
   width: 100%;
-  margin: 0 auto;
-  padding: 0; 
+  max-width: 100%;
+  margin: 0;
+  padding: 0; /* Removemos o padding de 2rem que criava a barra branca */
   text-align: center;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
-}
-
-*, *::before, *::after {
-  box-sizing: border-box;
 }
