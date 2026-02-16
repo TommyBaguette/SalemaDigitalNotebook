@@ -1,7 +1,7 @@
 <template>
   <div class="card">
     <div class="header-ranking">
-      <h3>🏆 Hall of Fame</h3>
+      <h3>Cadeia Alimentar</h3>
       
       <div class="month-selector">
         <label>Mês:</label>
@@ -172,8 +172,14 @@ function calculaMedia(total, jogos) {
 </script>
 
 <style scoped>
-.card { background: #2d2d2d; padding: 20px; border-radius: 12px; }
 
+.card { 
+  background: #2d2d2d; 
+  padding: 20px; 
+  border-radius: 12px; 
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
 .header-ranking { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
 h3 { color: #f1c40f; margin: 0; font-size: 1.5rem; }
 

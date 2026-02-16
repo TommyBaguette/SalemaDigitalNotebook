@@ -1,13 +1,36 @@
+<script setup>
+import { ref, onMounted } from 'vue';
+import { useGameStore } from '../stores/game'; 
+const store = useGameStore();
+const selecionados = ref([]);
+
+onMounted(() => {
+  store.fetchPlayers(); 
+});
+
+function toggleJogador(nome) {
+  if (selecionados.value.includes(nome)) {
+    selecionados.value = selecionados.value.filter(n => n !== nome);
+  } else {
+    if (selecionados.value.length < 5) selecionados.value.push(nome);
+  }
+}
+
+async function iniciar() {
+  await store.startGame(selecionados.value);
+}
+</script>
+
 <template>
   <div class="card">
     <h3>Quem vai a jogo?</h3>
     <p class="subtitle">Seleciona 5 jogadores ({{ selecionados.length }}/5)</p>
 
-    <div v-if="loading" class="loading-text">A carregar lista...</div>
+    <div v-if="store.loading" class="loading-text">A carregar...</div>
 
     <div v-else class="chips-container">
       <button 
-        v-for="nome in listaJogadores" 
+        v-for="nome in store.playersList" 
         :key="nome"
         @click="toggleJogador(nome)"
         class="chip"
@@ -18,85 +41,20 @@
       </button>
     </div>
 
-    <div class="preview-selection" v-if="selecionados.length > 0">
-      <small>Mesa:</small>
-      <div class="preview-list">
-        <span v-for="(s, i) in selecionados" :key="s">{{ i+1 }}. {{ s }}</span>
-      </div>
-    </div>
-
-    <button @click="iniciar" :disabled="creating || selecionados.length !== 5" class="btn-primary">
-      {{ creating ? 'A criar...' : 'Começar Jogo' }}
+    <button @click="iniciar" :disabled="store.loading || selecionados.length !== 5" class="btn-primary">
+      {{ store.loading ? 'A criar...' : 'Começar Jogo' }}
     </button>
   </div>
 </template>
-
-<script setup>
-import { ref, onMounted } from 'vue';
-import { apiCreateGame, apiGetAllPlayers } from '../services/api';
-
-const emit = defineEmits(['game-started']);
-
-const listaJogadores = ref([]);
-const selecionados = ref([]);   
-const loading = ref(true);
-const creating = ref(false);
-
-onMounted(async () => {
-  try {
-    const dados = await apiGetAllPlayers();
-    listaJogadores.value = dados.players || [];
-  } catch (e) {
-    console.error("Erro ao carregar jogadores", e);
-  } finally {
-    loading.value = false;
-  }
-});
-
-function toggleJogador(nome) {
-  if (selecionados.value.includes(nome)) {
-    selecionados.value = selecionados.value.filter(n => n !== nome);
-  } else {
-    if (selecionados.value.length < 5) {
-      selecionados.value.push(nome);
-    }
-  }
-}
-
-async function iniciar() {
-  creating.value = true;
-  try {
-    const dados = await apiCreateGame(selecionados.value);
-    emit('game-started', dados.game);
-  } catch (e) {
-    alert("Erro ao criar jogo: " + e.message);
-  } finally {
-    creating.value = false;
-  }
-}
-</script>
-
 <style scoped>
 .card { background: #2d2d2d; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
 h3 { margin-bottom: 5px; text-align: center; color: #42b983; }
 .subtitle { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 20px; }
-
 .chips-container { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 20px; }
-.chip {
-  background: #444; color: #ddd; border: 1px solid #555;
-  padding: 8px 16px; border-radius: 20px;
-  cursor: pointer; font-size: 0.9rem; transition: 0.2s;
-}
+.chip { background: #444; color: #ddd; border: 1px solid #555; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 0.9rem; transition: 0.2s; }
 .chip:hover { background: #555; }
-.chip.selected {
-  background: #42b983; color: white; border-color: #42b983; font-weight: bold;
-  box-shadow: 0 0 10px rgba(66, 185, 131, 0.4);
-}
+.chip.selected { background: #42b983; color: white; border-color: #42b983; font-weight: bold; box-shadow: 0 0 10px rgba(66, 185, 131, 0.4); }
 .chip:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.preview-selection { background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
-.preview-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 5px; color: #42b983; font-weight: bold; font-size: 0.9rem; }
-
 .btn-primary { width: 100%; padding: 15px; background: #42b983; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1.1rem; }
 .btn-primary:disabled { background: #444; color: #888; cursor: not-allowed; }
 .loading-text { text-align: center; color: #888; margin: 20px 0; }

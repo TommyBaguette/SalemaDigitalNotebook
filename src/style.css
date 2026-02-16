@@ -1,39 +1,29 @@
-/* src/style.css */
-
 :root {
   font-family: 'Segoe UI', system-ui, sans-serif;
   line-height: 1.5;
   color-scheme: dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #1a1a1a; /* Fundo escuro igual à app */
+  background-color: #1a1a1a;
 }
 
-/* --- RESET IMPORTANTE --- */
 *, *::before, *::after {
-  box-sizing: border-box; /* Impede que o padding aumente a largura */
+  box-sizing: border-box;
 }
 
 body {
   margin: 0;
   padding: 0;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background-color: #1a1a1a;
-  
-  /* ESTAS LINHAS RESOLVEM O SCROLL */
-  display: block; /* Removemos o flex/center que bloqueava o scroll vertical */
-  overflow-x: hidden; /* Proíbe o scroll para os lados */
-  overflow-y: auto; /* Permite scroll para baixo se a lista for grande */
+  display: block; 
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 #app {
   width: 100%;
-  max-width: 100%;
   margin: 0;
-  padding: 0; /* Removemos o padding de 2rem que criava a barra branca */
+  padding: 0;
   text-align: center;
-}
-
-button {
-  cursor: pointer;
 }
