@@ -21,7 +21,6 @@
             <span class="p-name">{{ player }}</span>
             <span class="p-score" :class="{'loser': game.currentTotals[i] >= 100}">
               {{ game.currentTotals[i] }}
-              <span v-if="game.currentTotals[i] >= 100"></span>
             </span>
           </div>
         </div>
@@ -52,7 +51,7 @@ onMounted(async () => {
     games.value = listaBruta.reverse();
 
   } catch (e) {
-    console.error(e);
+    console.error("Erro ao carregar histórico:", e);
   } finally {
     loading.value = false;
   }

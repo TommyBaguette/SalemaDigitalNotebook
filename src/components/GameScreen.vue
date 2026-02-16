@@ -20,8 +20,10 @@
       <table class="history-table">
         <thead>
           <tr>
-            <th class="round-col">#</th>
-            <th v-for="p in game.players" :key="p">{{ p.substring(0, 3) }}</th>
+            <th class="round-col">Rondas</th>
+            <th v-for="p in game.players" :key="p" class="player-header">
+              {{ p }}
+            </th>
           </tr>
         </thead>
         <tbody>

@@ -18,18 +18,6 @@
       </button>
     </div>
 
-    <div class="new-player-area">
-      <input 
-        v-model="novoNome" 
-        placeholder="Novo jogador..." 
-        maxlength="12"
-        @keyup.enter="adicionarNovo"
-      >
-      <button @click="adicionarNovo" :disabled="!novoNome.trim()" class="btn-small">
-        +
-      </button>
-    </div>
-
     <div class="preview-selection" v-if="selecionados.length > 0">
       <small>Mesa:</small>
       <div class="preview-list">
@@ -51,7 +39,6 @@ const emit = defineEmits(['game-started']);
 
 const listaJogadores = ref([]);
 const selecionados = ref([]);   
-const novoNome = ref("");    
 const loading = ref(true);
 const creating = ref(false);
 
@@ -67,29 +54,13 @@ onMounted(async () => {
 });
 
 function toggleJogador(nome) {
-
   if (selecionados.value.includes(nome)) {
     selecionados.value = selecionados.value.filter(n => n !== nome);
   } else {
-
     if (selecionados.value.length < 5) {
       selecionados.value.push(nome);
     }
   }
-}
-
-function adicionarNovo() {
-  const nomeLimpo = novoNome.value.trim();
-  if (!nomeLimpo) return;
-
-  if (!listaJogadores.value.includes(nomeLimpo)) {
-    listaJogadores.value.push(nomeLimpo); 
-    
-    if (selecionados.value.length < 5) {
-      selecionados.value.push(nomeLimpo);
-    }
-  }
-  novoNome.value = "";
 }
 
 async function iniciar() {
@@ -122,10 +93,6 @@ h3 { margin-bottom: 5px; text-align: center; color: #42b983; }
   box-shadow: 0 0 10px rgba(66, 185, 131, 0.4);
 }
 .chip:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.new-player-area { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
-.new-player-area input { padding: 10px; background: #333; border: 1px solid #555; color: white; border-radius: 6px; width: 60%; }
-.btn-small { background: #3498db; color: white; border: none; width: 40px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1.2rem; }
 
 .preview-selection { background: #1a1a1a; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; }
 .preview-list { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 5px; color: #42b983; font-weight: bold; font-size: 0.9rem; }
