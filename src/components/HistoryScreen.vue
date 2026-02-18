@@ -40,7 +40,7 @@
             <thead>
               <tr>
                 <th>#</th>
-                <th v-for="p in game.players" :key="p">{{ p.slice(0,3) }}</th>
+                <th v-for="p in game.players" :key="p">{{ p }}</th>
               </tr>
             </thead>
             <tbody>
