@@ -4,7 +4,7 @@
 
     <div v-if="store.loading" class="loading">A carregar...</div>
     
-    <div v-else-if="store.history.length === 0" class="empty">
+    <div v-else-if="!store.history || store.history.length === 0" class="empty">
       Ainda não há jogos terminados.
     </div>
 
@@ -23,7 +23,7 @@
           </div>
           
           <div class="loser-badge" v-if="getLosers(game).length > 0">
-            💀 {{ getLosers(game).join(', ') }}
+             {{ getLosers(game).join(', ') }}
           </div>
         </div>
 
