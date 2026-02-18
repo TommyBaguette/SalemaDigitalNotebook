@@ -5,7 +5,8 @@ export const useGameStore = defineStore('game', {
   state: () => ({
     currentGame: null,  
     playersList: [],
-    ranking: [],        
+    ranking: [],    
+    history: [],    
     loading: false,      
     error: null
   }),
@@ -18,6 +19,18 @@ export const useGameStore = defineStore('game', {
         this.playersList = data.players || [];
       } catch (e) {
         this.error = "Erro ao carregar jogadores";
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    async fetchHistory() {
+      this.loading = true;
+      try {
+        const data = await apiGetHistory();
+        this.history = data.history || [];
+      } catch (e) {
+        console.error(e);
       } finally {
         this.loading = false;
       }
