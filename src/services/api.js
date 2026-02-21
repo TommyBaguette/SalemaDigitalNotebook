@@ -25,8 +25,8 @@ async function request(action, body = {}) {
   }
 }
 
-export async function apiCreateGame(players) {
-  return request("createGame", { players });
+export async function apiCreateGame(players, location) {
+  return request("createGame", { players, location });
 }
 
 export async function apiAddRound(gameId, roundScores, salemaPlayerIndex) {
@@ -43,4 +43,8 @@ export async function apiGetAllPlayers() {
 
 export async function apiGetHistory() {
   return request("getHistory");
+}
+
+export async function apiGetActiveGames() {
+  return request("getActiveGames");
 }

@@ -18,8 +18,8 @@
       >
         <div class="game-header">
           <div class="header-left">
-            <span class="date">{{ formatDate(game.createdAt) }}</span>
-            <span class="game-id">#{{ game.gameId }}</span>
+           <span class="date">{{ formatDate(game.createdAt) }}</span>
+           <span class="game-id">#{{ game.gameId }} • 📍 {{ game.location || 'Não definido' }}</span>
           </div>
           
           <div class="loser-badge" v-if="getLosers(game).length > 0">
@@ -44,21 +44,24 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="round in game.rounds" :key="round.roundNumber">
+              <tr v-for="round in getAcumulado(game)" :key="round.roundNumber">
                 <td class="r-idx">{{ round.roundNumber }}</td>
-                <td v-for="(s, i) in round.scores" :key="i">
+                
+                <td v-for="(totalJogador, i) in round.totaisNaAltura" :key="i">
                   
-                  <div class="score-cell">
-                    <span :class="{ 'hero-scribble': round.isCleanSweep && s === 0 }">
-                      {{ s }}
+                  <div class="score-cell" :class="{ 'hero-scribble': round.isCleanSweep && round.pontosNestaRonda[i] === 0 }">
+                    
+                    <span class="score-value">
+                      {{ round.pontosNestaRonda[i] === 0 ? '-' : totalJogador }}
                     </span>
                     
-                    <sup v-if="i === round.salemaIndex || (round.isCleanSweep && s === 20)" 
-                          class="salema-star">*</sup>
+                    <sup v-if="i === round.salemaIndex || (round.isCleanSweep && round.pontosNestaRonda[i] === 20)" 
+                         class="salema-star">*</sup>
                   </div>
 
                 </td>
               </tr>
+              
               <tr class="total-row">
                 <td>=</td>
                 <td v-for="(total, i) in game.currentTotals" :key="i" :class="{ 'red-text': total >= 100 }">
@@ -102,6 +105,22 @@ function formatDate(isoString) {
   const date = new Date(isoString);
   return date.toLocaleDateString('pt-PT', { day: '2-digit', month: 'short' }) + 
          ' ' + date.toLocaleTimeString('pt-PT', { hour: '2-digit', minute:'2-digit' });
+}
+
+function getAcumulado(game) {
+
+  let totais = new Array(game.players.length).fill(0); 
+  
+  return game.rounds.map(ronda => {
+    const novosTotais = totais.map((ant, i) => ant + ronda.scores[i]);
+    totais = novosTotais;
+    
+    return {
+      ...ronda,
+      totaisNaAltura: novosTotais,
+      pontosNestaRonda: ronda.scores
+    };
+  });
 }
 
 function getLosers(game) {

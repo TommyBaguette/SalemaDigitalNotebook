@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { apiCreateGame, apiAddRound, apiGetAllPlayers, apiGetRanking } from '../services/api';
+import { apiCreateGame, apiAddRound, apiGetAllPlayers, apiGetRanking, apiGetActiveGames } from '../services/api';
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -7,6 +7,7 @@ export const useGameStore = defineStore('game', {
     playersList: [],
     ranking: [],    
     history: [],    
+    activeGames: [],
     loading: false,      
     error: null
   }),
@@ -24,6 +25,8 @@ export const useGameStore = defineStore('game', {
       }
     },
 
+    
+
     async fetchHistory() {
       this.loading = true;
       try {
@@ -36,10 +39,10 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    async startGame(selectedPlayers) {
+    async startGame(selectedPlayers, location) {
       this.loading = true;
       try {
-        const data = await apiCreateGame(selectedPlayers);
+        const data = await apiCreateGame(selectedPlayers, location);
         this.currentGame = data.game; 
       } catch (e) {
         alert(e.message);
@@ -78,6 +81,15 @@ export const useGameStore = defineStore('game', {
     exitGame() {
       this.currentGame = null;
       this.ranking = [];
+    },
+
+    async fetchActiveGames() {
+      try {
+        const data = await apiGetActiveGames();
+        this.activeGames = data.games || [];
+      } catch (e) {
+        console.error("Erro ao carregar jogos ao vivo", e);
+      }
     }
   }
 });

@@ -170,6 +170,15 @@ async function lancarRonda() {
     alert("Erro: Máximo 20 pontos por pessoa.");
     return;
   }
+
+  if (totalMesa.value === 80) {
+    const totalVintes = pontos.value.filter(p => p === 20).length;
+    if (totalVintes !== 4) {
+      alert("Erro de Carga: Para o total ser 80, 4 jogadores têm de levar 20 pontos e 1 jogador tem de ficar a zeros.");
+      return;
+    }
+  }
+  
   if (totalMesa.value === 20 && quemTemSalema.value === null) {
     alert("Quem levou a Salema (Dama de Espadas)?\n\nClica no ícone 🂭 ao lado do nome do jogador.");
     return;

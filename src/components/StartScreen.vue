@@ -1,8 +1,11 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useGameStore } from '../stores/game'; 
+
 const store = useGameStore();
 const selecionados = ref([]);
+const localDoJogo = ref('');
+const locaisDisponiveis = ['Carpe', 'Gota', 'Casa do Povo', 'Biblioteca'];
 
 onMounted(() => {
   store.fetchPlayers(); 
@@ -16,8 +19,12 @@ function toggleJogador(nome) {
   }
 }
 
+function setLocal(local) {
+  localDoJogo.value = local;
+}
+
 async function iniciar() {
-  await store.startGame(selecionados.value);
+  await store.startGame(selecionados.value, localDoJogo.value);
 }
 </script>
 
@@ -41,11 +48,34 @@ async function iniciar() {
       </button>
     </div>
 
-    <button @click="iniciar" :disabled="store.loading || selecionados.length !== 5" class="btn-primary">
+    <div v-if="selecionados.length === 5">
+      <h3 style="margin-top: 30px;">Onde é o jogo?</h3>
+      <p class="subtitle">Seleciona o local</p>
+      
+      <div class="chips-container">
+        <button 
+          v-for="local in locaisDisponiveis" 
+          :key="local"
+          @click="setLocal(local)"
+          class="chip"
+          :class="{ 'selected': localDoJogo === local }"
+        >
+          {{ local }}
+        </button>
+      </div>
+    </div>
+
+    <button 
+      @click="iniciar" 
+      :disabled="store.loading || selecionados.length !== 5 || localDoJogo === ''" 
+      class="btn-primary"
+      style="margin-top: 20px;"
+    >
       {{ store.loading ? 'A criar...' : 'Começar Jogo' }}
     </button>
   </div>
 </template>
+
 <style scoped>
 .card { background: #2d2d2d; padding: 20px; border-radius: 12px; margin-bottom: 20px; }
 h3 { margin-bottom: 5px; text-align: center; color: #42b983; }
