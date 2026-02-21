@@ -4,7 +4,7 @@
     <div class="fixed-header">
       <div class="top-bar">
         <span class="game-id">Game #{{ game.gameId }}</span>
-        <button @click="confirmarSaida" class="btn-text">Sair</button>
+        <button @click="showExitConfirm = true" class="btn-text">Sair</button>
       </div>
       <div class="scoreboard-summary">
         <div v-for="(p, i) in game.players" :key="i" class="player-score-box">
@@ -42,11 +42,16 @@
           </tr>
         </tbody>
       </table>
-      <div style="height: 80px;"></div>
+      <div style="height: 120px;"></div>
     </div>
 
-    <button class="fab-add" @click="abrirModal" v-if="game.status === 'ACTIVE'">+ Anotar Ronda</button>
-
+    <div class="action-buttons" v-if="game.status === 'ACTIVE'">
+      <button class="btn-anotar" @click="abrirModal">+ Anotar Ronda</button>
+      <button v-if="store.currentGame.rounds.length > 0" @click="showUndoConfirm = true" class="btn-undo">
+        ↩ Anular Última Ronda
+      </button>
+    </div>
+    
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-content">
         <div class="modal-header">
@@ -88,6 +93,29 @@
     </div>
 
   </div>
+
+  <div v-if="showUndoConfirm" class="modal-overlay">
+  <div class="modal-content confirm-modal">
+    <h3 class="confirm-title"> Atenção</h3>
+    <p class="confirm-text">Tens a certeza que queres anular a última ronda?</p>
+    <div class="confirm-actions">
+      <button @click="showUndoConfirm = false" class="btn-cancel">Cancelar</button>
+      <button @click="confirmarUndo" class="btn-danger">Sim, Anular</button>
+    </div>
+  </div>
+</div>
+
+  <div v-if="showExitConfirm" class="modal-overlay">
+  <div class="modal-content confirm-modal">
+    <h3 class="confirm-title"> Sair do Jogo</h3>
+    <p class="confirm-text">Queres mesmo sair e voltar ao menu principal?</p>
+    <div class="confirm-actions">
+      <button @click="showExitConfirm = false" class="btn-cancel">Cancelar</button>
+      <button @click="executarSair" class="btn-danger">Sim, Sair</button>
+    </div>
+  </div>
+</div>
+
 </template>
 
 <script setup>
@@ -99,6 +127,8 @@ const game = computed(() => store.currentGame);
 const pontos = ref([0,0,0,0,0]);
 const quemTemSalema = ref(null);
 const showModal = ref(false);
+const showUndoConfirm = ref(false);
+const showExitConfirm = ref(false);
 
 const totalMesa = computed(() => pontos.value.reduce((a, b) => a + b, 0));
 
@@ -123,14 +153,18 @@ function abrirModal() {
   showModal.value = true;
 }
 
+async function confirmarUndo() {
+  showUndoConfirm.value = false;
+  await store.undoLastRound(); 
+}
+
 function fecharModal() {
   showModal.value = false;
 }
 
-function confirmarSaida() {
-  if (confirm("Sair do jogo atual?")) {
-    store.exitGame();
-  }
+function executarSair() {
+  showExitConfirm.value = false;
+  store.exitGame();            
 }
 
 function aplicarCarga(heroIndex) {
@@ -178,7 +212,7 @@ async function lancarRonda() {
       return;
     }
   }
-  
+
   if (totalMesa.value === 20 && quemTemSalema.value === null) {
     alert("Quem levou a Salema (Dama de Espadas)?\n\nClica no ícone 🂭 ao lado do nome do jogador.");
     return;
@@ -205,7 +239,7 @@ async function lancarRonda() {
 
 .history-container { flex: 1; overflow-y: auto; padding: 10px; }
 .history-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; }
-.history-table th { color: #42b983; padding: 8px; border-bottom: 1px solid #444; position: sticky; top: 0; background: #1a1a1a; }
+.history-table th { color: #42b983; padding: 8px; border-bottom: 1px solid #444; position: sticky; top: 0; background: #1a1a1a; z-index: 5; }
 .history-table td { padding: 5px; border-bottom: 1px solid #333; vertical-align: middle; }
 .round-col { color: #666; font-size: 0.7rem; width: 30px;}
 .round-num { color: #666; font-size: 0.8rem; }
@@ -226,10 +260,47 @@ async function lancarRonda() {
   text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
 }
 
-.fab-add { 
-  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  background: #3498db; color: white; border: none; padding: 15px 30px; border-radius: 30px; 
-  font-size: 1.1rem; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 20;
+.action-buttons {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 20;
+  width: 100%;
+}
+
+.btn-anotar {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  cursor: pointer;
+}
+
+.btn-undo {
+  background-color: rgba(26, 26, 26, 0.9);
+  color: #e74c3c;
+  border: 2px solid #e74c3c;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.btn-undo:hover {
+  background-color: #e74c3c;
+  color: white;
 }
 
 .modal-overlay { 
@@ -271,4 +342,53 @@ async function lancarRonda() {
 .status-ok { color: #42b983; font-weight: bold; }
 .btn-action { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; }
 .game-over-banner { text-align: center; padding: 20px; background: #1a1a1a; }
+.confirm-modal {
+  max-width: 350px;
+  text-align: center;
+  padding: 30px 20px;
+  border-radius: 20px;
+  margin-bottom: auto;
+  margin-top: auto;
+}
+
+.confirm-title {
+  color: #f39c12;
+  margin-bottom: 10px;
+  font-size: 1.5rem;
+}
+
+.confirm-text {
+  color: #ddd;
+  margin-bottom: 25px;
+  font-size: 1.1rem;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.btn-cancel {
+  background: #555;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+}
+
 </style>

@@ -48,3 +48,7 @@ export async function apiGetHistory() {
 export async function apiGetActiveGames() {
   return request("getActiveGames");
 }
+
+export async function apiUndoRound(gameId) {
+  return request("undoRound", { gameId });
+}

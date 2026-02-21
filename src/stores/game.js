@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { apiCreateGame, apiAddRound, apiGetAllPlayers, apiGetRanking, apiGetActiveGames } from '../services/api';
+import { apiCreateGame, apiAddRound, apiGetAllPlayers, apiGetRanking, apiGetActiveGames, apiUndoRound } from '../services/api';
 
 export const useGameStore = defineStore('game', {
   state: () => ({
@@ -90,6 +90,21 @@ export const useGameStore = defineStore('game', {
       } catch (e) {
         console.error("Erro ao carregar jogos ao vivo", e);
       }
-    }
+    },
+
+    async undoLastRound() {
+       if (!this.currentGame || !this.currentGame.rounds.length) return;
+
+      try {
+         const data = await apiUndoRound(this.currentGame.gameId);
+         this.currentGame = data.game; 
+          } catch (e) {
+          console.error("Erro ao anular ronda:", e);
+          alert(e.message);
   }
+}
+
+    
+  }
+  
 });
