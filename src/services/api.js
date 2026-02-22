@@ -1,4 +1,4 @@
-const API_URL = "https://bfcfzzm5v27k4qaiqrwa5ukqbu0bwiri.lambda-url.eu-north-1.on.aws/";
+const API_URL = import.meta.env.VITE_API_URL;
 
 async function request(action, body = {}) {
   try {

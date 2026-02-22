@@ -25,9 +25,9 @@
 
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-const emit = defineEmits(['backToHome']);
-
+const router = useRouter();
 const feedbackName = ref('');
 const feedbackMsg = ref('');
 const loadingFeedback = ref(false);
@@ -36,7 +36,7 @@ const showSuccessModal = ref(false);
 async function enviarFeedback() {
   loadingFeedback.value = true;
   
-  const FORMSPREE_URL = "https://formspree.io/f/mqedyzbk"; 
+  const FORMSPREE_URL = import.meta.env.VITE_FORMSPREE_URL; 
   
   try {
     const resposta = await fetch(FORMSPREE_URL, {
@@ -64,7 +64,7 @@ async function enviarFeedback() {
 
 function fecharSucesso() {
   showSuccessModal.value = false;
-  emit('backToHome'); 
+  router.push('/'); 
 }
 </script>
 
