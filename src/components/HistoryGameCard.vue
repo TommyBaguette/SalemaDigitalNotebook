@@ -7,7 +7,7 @@
     <div class="game-header">
       <div class="header-left">
        <span class="date">{{ formatDate(game.createdAt) }}</span>
-       <span class="game-id">#{{ game.gameId }} • 📍 {{ game.location || 'Não definido' }}</span>
+       <span class="game-id">#{{ game.gameId }} • {{ game.location || 'Não definido' }}</span>
       </div>
       
       <div class="loser-badge" v-if="getLosers(game).length > 0">
@@ -22,8 +22,6 @@
     </div>
 
     <div v-if="isExpanded" class="game-details" @click.stop>
-      <div class="details-divider"></div>
-      
       <table class="rounds-table">
         <thead>
           <tr>
@@ -36,12 +34,14 @@
             <td class="r-idx">{{ round.roundNumber }}</td>
             
             <td v-for="(totalJogador, i) in round.totaisNaAltura" :key="i">
+              
               <div class="score-cell" :class="{ 'hero-scribble': round.isCleanSweep && round.pontosNestaRonda[i] === 0 }">
                 <span class="score-value">
                   {{ round.pontosNestaRonda[i] === 0 ? '-' : totalJogador }}
                 </span>
                 <sup v-if="i === round.salemaIndex || (round.isCleanSweep && round.pontosNestaRonda[i] === 20)" class="salema-star">*</sup>
               </div>
+
             </td>
           </tr>
           
@@ -108,51 +108,64 @@ function getLosers(game) {
 
 <style scoped>
 .game-card {
-  background: #2d2d2d; border-radius: 12px; margin-bottom: 15px;
-  padding: 15px; cursor: pointer; transition: all 0.2s;
-  border: 1px solid #444; position: relative;
+  background: rgba(10, 25, 40, 0.6);
+  border: 1px solid rgba(76, 201, 240, 0.2);
+  border-radius: 12px; margin-bottom: 15px;
+  position: relative; cursor: pointer; transition: all 0.2s;
 }
-.game-card.expanded { background: #333; border-color: #e74c3c; }
+.game-card.expanded {
+  border-color: var(--primary-teal, #4cc9f0);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+}
 
-.game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.game-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 15px 5px 15px; }
 .header-left { display: flex; flex-direction: column; }
-.date { font-size: 0.8rem; color: #aaa; }
-.game-id { font-size: 0.7rem; color: #666; }
+.date { font-size: 0.9rem; color: var(--primary-teal, #4cc9f0); font-weight: bold; }
+.game-id { font-size: 0.8rem; color: #888; margin-top: 2px; }
 
 .loser-badge { 
-  background: #3a1d1d; color: #ff6b6b; border: 1px solid #c0392b;
-  padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.8rem; 
+  background: rgba(239, 71, 111, 0.15); color: #ef476f; border: 1px solid rgba(239, 71, 111, 0.3);
+  padding: 4px 10px; border-radius: 12px; font-weight: bold; font-size: 0.85rem; 
 }
 
-.mini-scores { display: flex; flex-wrap: wrap; gap: 8px; font-size: 0.8rem; color: #ccc; margin-top: 5px; }
-.mini-score-item { background: #222; padding: 2px 6px; border-radius: 4px; }
-.mini-score-item.is-loser { color: #e74c3c; border: 1px solid #e74c3c; }
+.mini-scores { 
+  display: flex; 
+  flex-wrap: nowrap; 
+  justify-content: space-between; 
+  gap: 4px; 
+  padding: 10px 15px 15px 15px; 
+  overflow-x: auto;
+}
+.mini-score-item { 
+  background: rgba(0, 0, 0, 0.4); color: #fff; padding: 4px 6px; border-radius: 6px; 
+  font-size: 0.85rem; border: 1px solid #444; white-space: nowrap; 
+}
+.mini-score-item.is-loser { color: #ef476f; border-color: #ef476f; }
 
-.game-details { margin-top: 15px; animation: fadeIn 0.3s; cursor: default; }
+.game-details { 
+  background: #F0F8FF; padding: 15px; border-top: 2px solid var(--primary-teal, #4cc9f0); 
+  animation: fadeIn 0.3s; cursor: default; 
+}
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-.details-divider { height: 1px; background: #444; margin-bottom: 10px; }
-
-.rounds-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; }
-.rounds-table th { color: #888; padding: 4px; border-bottom: 1px solid #555; font-weight: normal; font-size: 0.8rem; }
-.rounds-table td { padding: 8px 4px; border-bottom: 1px solid #444; color: #ddd; vertical-align: middle; }
-.r-idx { color: #555; font-size: 0.7rem; }
+.rounds-table { width: 100%; border-collapse: collapse; text-align: center; }
+.rounds-table th { color: #005F73; padding: 8px 4px; border-bottom: 2px solid rgba(0, 0, 0, 0.1); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; }
+.rounds-table td { padding: 10px 4px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); color: #0B253A; font-size: 1rem; font-weight: 500; }
+.r-idx { color: #4A5568; font-size: 0.85rem; font-weight: bold; }
 
 .score-cell { position: relative; display: inline-block; min-width: 20px; }
-.salema-star {
-  position: absolute; top: -5px; right: -8px;
-  color: #e74c3c; font-weight: bold; font-size: 1rem;
-  line-height: 1;
-}
+.score-value { z-index: 1; position: relative; }
 
 .hero-scribble {
-  background: repeating-linear-gradient(135deg, #444, #444 3px, #777 3px, #777 5px);
-  color: transparent; border: 1px solid #555; border-radius: 4px; 
+  background: repeating-linear-gradient(135deg, #d5d8dd, #cbd5e1 3px, #94a3b8 3px, #94a3b8 5px);
+  color: transparent; border: 1px solid #94a3b8; border-radius: 4px; 
   padding: 1px 5px; font-weight: bold; display: inline-block;
 }
 
-.total-row td { border-top: 2px solid #555; font-weight: bold; color: white; padding-top: 10px; }
-.total-row .red-text { color: #e74c3c; }
+.salema-star { position: absolute; top: -5px; right: -8px; color: #E63946; font-weight: bold; font-size: 1rem; line-height: 1; }
 
-.expand-icon { text-align: center; color: #555; font-size: 0.8rem; margin-top: 5px; }
+.total-row td { border-top: 2px solid #005F73; font-weight: bold; color: #0B253A; padding-top: 10px; }
+.total-row .red-text { color: #E63946; }
+
+.expand-icon { text-align: center; color: #888; font-size: 0.8rem; margin-top: 5px; padding-bottom: 8px; }
 </style>

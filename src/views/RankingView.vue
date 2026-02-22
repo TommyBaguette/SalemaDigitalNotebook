@@ -1,7 +1,7 @@
 <template>
-  <div class="card">
+  <div class="card ranking-card">
     <div class="header-ranking">
-      <h3>Cadeia Alimentar</h3>
+      <h3> Cadeia Alimentar </h3>
       
       <div class="month-selector">
         <label>Mês:</label>
@@ -9,10 +9,10 @@
       </div>
     </div>
     
-    <div v-if="loading" class="loading-text">A carregar dados...</div>
+    <div v-if="loading" class="loading-text">A lançar as redes... 🕸️</div>
     
     <div v-else-if="lista.length === 0" class="empty-state">
-      Nenhum jogo registado neste mês.
+      Mar calmo. Nenhum jogo registado neste mês.
     </div>
 
     <div v-else>
@@ -23,63 +23,66 @@
               <th class="col-rank">#</th>
               
               <th class="col-name clickable" @click="ordenar('nickname')">
-                Nome <span v-if="colunaAtual === 'nickname'">{{ getSeta('nickname') }}</span>
+                Peixe <span v-if="colunaAtual === 'nickname'">{{ getSeta('nickname') }}</span>
               </th>
               
               <th class="col-stat clickable" @click="ordenar('gamesPlayed')" title="Jogos Jogados">
                 J <span v-if="colunaAtual === 'gamesPlayed'">{{ getSeta('gamesPlayed') }}</span>
               </th>
-              <th class="col-stat clickable" @click="ordenar('roundsPlayed')" title="Rondas Jogadas">
-                R <span v-if="colunaAtual === 'roundsPlayed'">{{ getSeta('roundsPlayed') }}</span>
+
+              <th class="col-stat clickable" @click="ordenar('maisMenos')" title="Eficiência (+/-)">
+                +/- <span v-if="colunaAtual === 'maisMenos'">{{ getSeta('maisMenos') }}</span>
               </th>
 
-              <th class="col-stat clickable" @click="ordenar('losses')" title="Derrotas">
-                ☠️ <span v-if="colunaAtual === 'losses'">{{ getSeta('losses') }}</span>
+              <th class="col-stat clickable" @click="ordenar('totalPoints')" title="Média de Pontos">
+                Pts/J <span v-if="colunaAtual === 'totalPoints'">{{ getSeta('totalPoints') }}</span>
               </th>
               
-              <th class="col-stat clickable" @click="ordenar('totalPoints')" title="Total de Pontos">
-                Pts <span v-if="colunaAtual === 'totalPoints'">{{ getSeta('totalPoints') }}</span>
-              </th>
-
-              <th class="col-stat clickable" @click="ordenar('mediaPontos')" title="Média de Pontos (Menor é Melhor)">
-                Pts/J <span v-if="colunaAtual === 'mediaPontos'">{{ getSeta('mediaPontos') }}</span>
+              <th class="col-stat clickable" @click="ordenar('salemasCount')" title="Total Salemas">
+                🂭 <span v-if="colunaAtual === 'salemasCount'">{{ getSeta('salemasCount') }}</span>
               </th>
               
-              <th class="col-stat clickable" @click="ordenar('mediaSalemas')" title="Média Salemas">
-                <img src="/dama.jpg" alt="Dama" class="icon-dama">/J 
-                <span v-if="colunaAtual === 'mediaSalemas'">{{ getSeta('mediaSalemas') }}</span>
-              </th>
-              
-              <th class="col-stat clickable" @click="ordenar('mediaCargas')" title="Média de 20s">
-                <span class="icon-20">20</span>/J 
-                <span v-if="colunaAtual === 'mediaCargas'">{{ getSeta('mediaCargas') }}</span>
+              <th class="col-stat clickable" @click="ordenar('cleanSweeps')" title="Cargas de 20">
+                20* <span v-if="colunaAtual === 'cleanSweeps'">{{ getSeta('cleanSweeps') }}</span>
               </th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(p, i) in listaOrdenada" :key="p.nickname">
-              <td class="col-rank">{{ i + 1 }}º</td>
+            <tr v-for="(p, i) in listaOrdenada" :key="p.nickname" :class="getRowClass(i, listaOrdenada.length)">
+              <td class="col-rank">
+                <template v-if="colunaAtual === 'maisMenos' && ordemDesc">
+                  <span v-if="i === 0" class="rank-icon" title="Megalodon">🦈</span>
+                  <span v-else-if="i === 1 || i === 2" class="rank-icon" title="Big Fish">🐋</span>
+                  
+                  <span v-else-if="i === listaOrdenada.length - 1" class="rank-icon" title="Areia">🏖️</span>
+                  
+                  <span v-else-if="i === listaOrdenada.length - 2 || i === listaOrdenada.length - 3" class="rank-icon" title="Camarão">🦐</span>
+                  
+                  <span v-else>{{ i + 1 }}º</span>
+                </template>
+                
+                <template v-else>
+                  <span>{{ i + 1 }}º</span>
+                </template>
+              </td>
+              
               <td class="col-name">{{ p.nickname }}</td>
-              
               <td class="col-stat">{{ p.gamesPlayed || 0 }}</td>
-              <td class="col-stat">{{ p.roundsPlayed || 0 }}</td>
-
-              <td class="col-stat">{{ p.losses }}</td>
-              <td class="col-stat">{{ p.totalPoints }}</td>
               
-              <td class="col-stat highlight-stat">{{ calculaMedia(p.totalPoints, p.gamesPlayed) }}</td>
+              <td class="col-stat font-bold" :class="getMaisMenosColor(calculaMaisMenos(p))">
+                {{ formatMaisMenos(calculaMaisMenos(p)) }}
+              </td>
 
-              <td class="col-stat">{{ calculaMedia(p.salemasCount, p.gamesPlayed) }}</td>
-              <td class="col-stat">{{ calculaMedia(p.cleanSweeps, p.gamesPlayed) }}</td>
+              <td class="col-stat">{{ calculaMedia(p.totalPoints, p.gamesPlayed) }}</td>
+              <td class="col-stat text-muted">{{ p.salemasCount || 0 }}</td>
+              <td class="col-stat text-gold">{{ p.cleanSweeps || 0 }}</td>
             </tr>
           </tbody>
         </table>
       </div>
       
       <p class="legend">
-        <small>
-          J Jogos | R Rondas | ☠️ Derrotas | Pts/J Pontos/Jogo
-        </small>
+        <small>🂭 Salemas </small>
       </p>
     </div>
   </div>
@@ -92,8 +95,7 @@ import { apiGetRanking } from '../services/api';
 const lista = ref([]);
 const mesSelecionado = ref(new Date().toISOString().slice(0, 7));
 const loading = ref(false);
-
-const colunaAtual = ref('totalPoints');
+const colunaAtual = ref('maisMenos'); 
 const ordemDesc = ref(true);
 
 async function carregarRanking() {
@@ -101,14 +103,80 @@ async function carregarRanking() {
   try {
     const dados = await apiGetRanking(mesSelecionado.value);
     lista.value = dados.ranking || [];
-    colunaAtual.value = 'totalPoints'; 
+    colunaAtual.value = 'maisMenos'; 
     ordemDesc.value = true;
   } catch (e) {
     console.error(e);
-    alert("Erro ao carregar ranking");
   } finally {
     loading.value = false;
   }
+}
+
+const maxStats = computed(() => {
+  let maxJ = 0, maxH = 0, maxK = 0, maxI = 0;
+  
+  lista.value.forEach(p => {
+    if (p.gamesPlayed > 0) {
+      const j = p.losses / p.gamesPlayed;       
+      const h = p.totalPoints / p.gamesPlayed;
+      const k = p.cleanSweeps / p.gamesPlayed; 
+      const i = p.salemasCount / p.gamesPlayed; 
+      
+      if (j > maxJ) maxJ = j;
+      if (h > maxH) maxH = h;
+      if (k > maxK) maxK = k;
+      if (i > maxI) maxI = i;
+    }
+  });
+  
+  return { maxJ, maxH, maxK, maxI };
+});
+
+function calculaMaisMenos(p) {
+  if (!p.gamesPlayed || p.gamesPlayed === 0) return 0;
+  
+  const J2 = p.losses / p.gamesPlayed;
+  const H2 = p.totalPoints / p.gamesPlayed;
+  const K2 = p.cleanSweeps / p.gamesPlayed;
+  const I2 = p.salemasCount / p.gamesPlayed;
+
+
+  const { maxJ, maxH, maxK, maxI } = maxStats.value;
+  const fatorJ = maxJ > 0 ? (J2 / Math.pow(maxJ, 2)) : 0;
+  const fatorH = maxH > 0 ? (H2 / maxH) : 0;
+  const fatorK = maxK > 0 ? (K2 / maxK) : 0;
+  const fatorI = maxI > 0 ? (I2 / maxI) : 0;
+  const score = (0.4 * (1 - fatorJ)) 
+              + (0.2 * (1 - fatorH)) 
+              + (0.3 * fatorK) 
+              + (0.1 * (1 - fatorI));
+              
+  return score;
+}
+
+function formatMaisMenos(valor) {
+  const num = Number(valor).toFixed(2);
+  return valor > 0 ? `+${num}` : num;
+}
+
+function calculaMedia(total, jogos) {
+  if (!jogos) return "-";
+  return (total / jogos).toFixed(1);
+}
+
+function getMaisMenosColor(val) {
+  if (val > 0) return 'val-pos';
+  if (val < 0) return 'val-neg';
+  return '';
+}
+
+function getRowClass(i, total) {
+  if (colunaAtual.value !== 'maisMenos' || !ordemDesc.value) return '';
+  
+  if (i === 0) return 'row-shark';
+  if (i === total - 1) return 'row-sand'; 
+  if (i >= total - 3) return 'row-shrimp';
+  return '';
 }
 
 function ordenar(coluna) {
@@ -116,12 +184,7 @@ function ordenar(coluna) {
     ordemDesc.value = !ordemDesc.value;
   } else {
     colunaAtual.value = coluna;
-    
-    if (coluna === 'mediaPontos') {
-      ordemDesc.value = false;
-    } else {
-      ordemDesc.value = true;
-    }
+    ordemDesc.value = (coluna !== 'totalPoints'); 
   }
 }
 
@@ -131,109 +194,74 @@ function getSeta(coluna) {
 }
 
 function getValorOrdenacao(player, coluna) {
-  if (coluna === 'mediaPontos') {
-    if (!player.gamesPlayed || player.gamesPlayed === 0) {
-      return 999999; 
-    }
-    return player.totalPoints / player.gamesPlayed;
+  if (coluna === 'totalPoints') { 
+    return (!player.gamesPlayed) ? 9999 : player.totalPoints / player.gamesPlayed;
   }
-  if (coluna === 'mediaSalemas') {
-    return player.gamesPlayed ? (player.salemasCount / player.gamesPlayed) : 0;
-  }
-  if (coluna === 'mediaCargas') {
-    return player.gamesPlayed ? (player.cleanSweeps / player.gamesPlayed) : 0;
-  }
+  if (coluna === 'maisMenos') return calculaMaisMenos(player);
   return player[coluna] || 0; 
 }
 
 const listaOrdenada = computed(() => {
-  return [...lista.value].sort((a, b) => {
-    let valorA = getValorOrdenacao(a, colunaAtual.value);
-    let valorB = getValorOrdenacao(b, colunaAtual.value);
+  const listaLimpa = lista.value.filter(p => {
+    const score = parseFloat(calculaMaisMenos(p));
+    return score !== 0; 
+  });
 
-    if (typeof valorA === 'string') {
-      return ordemDesc.value 
-        ? valorB.localeCompare(valorA) 
-        : valorA.localeCompare(valorB);
-    }
-
-    return ordemDesc.value ? valorB - valorA : valorA - valorB;
+  return listaLimpa.sort((a, b) => {
+    let valA = getValorOrdenacao(a, colunaAtual.value);
+    let valB = getValorOrdenacao(b, colunaAtual.value);
+    return ordemDesc.value ? valB - valA : valA - valB;
   });
 });
 
-onMounted(() => {
-  carregarRanking();
-});
-
-function calculaMedia(total, jogos) {
-  if (!jogos || jogos === 0) return "-";
-  return (total / jogos).toFixed(1);
-}
+onMounted(() => { carregarRanking(); });
 </script>
 
 <style scoped>
-
-.card { 
-  background: #2d2d2d; 
-  padding: 20px; 
-  border-radius: 12px; 
-  margin-bottom: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-}
-.header-ranking { display: flex; flex-direction: column; align-items: center; gap: 10px; margin-bottom: 20px; }
-h3 { color: #f1c40f; margin: 0; font-size: 1.5rem; }
-
-.month-selector { 
-  display: flex; align-items: center; gap: 10px; 
-  background: #333; padding: 5px 15px; border-radius: 20px; border: 1px solid #444;
-}
-.month-selector label { color: #aaa; font-size: 0.9rem; }
-.input-mes { 
-  background: transparent; border: none; color: white; 
-  font-family: inherit; font-size: 1rem; cursor: pointer; outline: none;
-}
-.input-mes::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
-
-.loading-text { text-align: center; color: #888; margin: 20px 0; }
-.empty-state { text-align: center; color: #666; font-style: italic; padding: 20px; }
-
-.table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-
-.ranking-table { 
-  width: 100%; 
-  border-collapse: collapse; 
-  color: #eee; 
-  min-width: 350px; 
+.ranking-card {
+  background: var(--card-glass);
+  backdrop-filter: blur(10px); 
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+  padding: 20px 10px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
 }
 
-th, td { 
-  padding: 10px 4px; 
-  border-bottom: 1px solid #444; 
-  font-size: 0.9rem; 
-  vertical-align: middle;
+.header-ranking h3 { 
+  color: var(--primary-teal); 
+  text-transform: uppercase; 
+  letter-spacing: 2px; 
+  font-weight: 800;
+  text-shadow: 0 0 10px rgba(76, 201, 240, 0.3);
 }
 
-th { color: #888; font-weight: normal; user-select: none; white-space: nowrap; }
-
-.clickable { cursor: pointer; transition: color 0.2s; }
-.clickable:hover { color: #fff; background-color: #333; }
-
-.col-rank { width: 35px; text-align: center; color: #666; font-size: 0.8rem; }
-.col-name { text-align: left; font-weight: bold; color: white; padding-left: 5px; min-width: 80px; }
-.col-stat { width: 45px; text-align: center; color: #ddd; }
-
-.highlight-stat { color: #fff; font-weight: bold; }
-
-.icon-dama { height: 20px; width: auto; vertical-align: middle; margin-bottom: 2px; }
-.icon-dama-small { height: 14px; vertical-align: middle; }
-.icon-20 { color: #f1c40f; font-weight: 900; font-size: 0.9rem; }
-
-.legend { text-align: center; color: #666; margin-top: 15px; font-size: 0.75rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px;}
-
-@media (max-width: 600px) {
-  .card { padding: 10px; }
-  th, td { padding: 8px 2px; font-size: 0.85rem; }
-  .col-stat { width: 38px; }
-  .icon-dama { height: 18px; }
+.input-mes {
+  background: rgba(0,0,0,0.3); border: 1px solid var(--primary-teal);
+  color: white; padding: 5px 10px; border-radius: 20px; outline: none;
 }
+.input-mes::-webkit-calendar-picker-indicator { filter: invert(1); }
+
+.ranking-table { width: 100%; border-collapse: separate; border-spacing: 0 8px; color: var(--text-main); }
+th { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; padding: 10px 4px; border: none; }
+td { background: rgba(255,255,255,0.03); padding: 12px 5px; border: none; font-size: 0.95rem; }
+
+td:first-child { border-radius: 10px 0 0 10px; }
+td:last-child { border-radius: 0 10px 10px 0; }
+
+.col-rank { font-weight: bold; color: var(--text-muted); width: 40px; }
+.rank-icon { font-size: 1.4rem; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+
+.col-name { text-align: left; font-weight: bold; padding-left: 10px; }
+.col-stat { text-align: center; }
+
+.val-pos { color: var(--primary-teal); font-weight: bold; }
+.val-neg { color: var(--danger-coral); font-weight: bold; }
+.text-gold { color: var(--accent-gold); font-weight: bold; }
+.text-muted { color: var(--text-muted); opacity: 0.7; }
+
+.row-shark td { background: linear-gradient(90deg, rgba(76, 201, 240, 0.15), rgba(76, 201, 240, 0.05)); border-top: 1px solid rgba(76, 201, 240, 0.3); }
+.row-sand td { background: rgba(255, 209, 102, 0.05); opacity: 1; }
+.row-shrimp td { background: rgba(239, 71, 111, 0.05); opacity: 1; }
+
+.legend { margin-top: 20px; color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.5px; }
 </style>

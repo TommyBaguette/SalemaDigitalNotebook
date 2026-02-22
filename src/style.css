@@ -1,29 +1,36 @@
 :root {
+  /* Paleta Oceano Profundo */
+  --bg-deep: #021019;       /* Fundo quase preto */
+  --bg-ocean: #0a253a;      /* Azul Marinho */
+  --card-glass: rgba(16, 40, 60, 0.75); /* Vidro Translúcido */
+  --border-glass: rgba(255, 255, 255, 0.1);
+  
+  --primary-teal: #4CC9F0;
+  --accent-gold: #FFD166;
+  --danger-coral: #EF476F;
+  --text-main: #E0F7FA; 
+  --text-muted: #8FA6B5;   
+
   font-family: 'Segoe UI', system-ui, sans-serif;
   line-height: 1.5;
   color-scheme: dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #1a1a1a;
+  color: var(--text-main);
+  background-color: var(--bg-deep);
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
 body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  min-height: 100vh;
-  background-color: #1a1a1a;
-  display: block; 
+  margin: 0; padding: 0; width: 100%; min-height: 100vh;
+  /* Gradiente do fundo do mar */
+  background: radial-gradient(circle at top, #133a55 0%, var(--bg-deep) 70%);
+  background-attachment: fixed;
   overflow-x: hidden;
-  overflow-y: auto;
 }
 
-#app {
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
+#app { width: 100%; max-width: 100%; margin: 0; padding: 0; text-align: center; }
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--bg-ocean); border-radius: 10px; }
