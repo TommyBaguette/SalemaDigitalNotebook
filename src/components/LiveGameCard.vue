@@ -29,18 +29,82 @@ defineProps({
 
 <style scoped>
 .live-card {
-  background: #2d2d2d; border: 2px solid #42b983; border-radius: 12px;
-  padding: 15px; margin-bottom: 20px;
+  /* Fundo escuro condizente com o histórico */
+  background: rgba(5, 15, 25, 0.85); 
+  border: 2px solid #4CC9F0; /* Borda brilhante para destacar que está AO VIVO */
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(5px);
+  box-shadow: 0 4px 15px rgba(76, 201, 240, 0.2);
 }
-.card-top { display: flex; justify-content: space-between; margin-bottom: 15px; }
-.location { font-weight: bold; color: #ddd; }
-.badge { background: #e74c3c; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: bold; }
 
-.live-scoreboard { display: flex; justify-content: space-between; text-align: center; }
-.player-stat { display: flex; flex-direction: column; width: 18%; }
-.p-name { font-size: 0.7rem; color: #aaa; margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.p-score { font-size: 1.2rem; font-weight: bold; color: white; }
-.danger { color: #f39c12; }
+.card-top { 
+  display: flex; 
+  justify-content: space-between; 
+  margin-bottom: 15px; 
+  align-items: center;
+}
 
-.last-update { text-align: center; font-size: 0.8rem; color: #666; margin-top: 15px; }
+.location { 
+  font-weight: bold; 
+  color: #4CC9F0; /* Cor do tema */
+}
+
+.badge { 
+  background: #ef476f; /* Vermelho vivo para o "AO VIVO" */
+  color: white; 
+  padding: 4px 10px; 
+  border-radius: 6px; 
+  font-size: 0.75rem; 
+  font-weight: bold;
+  letter-spacing: 1px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.live-scoreboard {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.player-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.p-name { 
+  color: #4CC9F0;
+  font-size: 0.85rem; 
+  font-weight: bold;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+}
+
+.p-score { 
+  color: #ffffff;
+  font-size: 1.4rem; 
+  font-weight: bold; 
+}
+
+.p-score.danger { 
+  color: #ef476f;
+}
+
+.last-update { 
+  text-align: center; 
+  color: #888; 
+  font-size: 0.75rem; 
+  margin-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 10px;
+}
 </style>

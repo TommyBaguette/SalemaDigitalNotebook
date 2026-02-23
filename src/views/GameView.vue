@@ -1,85 +1,107 @@
 <template>
-  <div class="game-screen" v-if="game">
+  <div>
     
-    <div class="fixed-header">
-      <div class="top-bar">
-        <span class="game-id">Game #{{ game.gameId }}</span>
-        <button @click="showExitConfirm = true" class="btn-text">Sair</button>
-      </div>
-      <div class="scoreboard-summary">
-        <div v-for="(p, i) in game.players" :key="i" class="player-score-box">
-          <span class="p-name">{{ p }}</span>
-          <span class="p-total" :class="{'danger': game.currentTotals[i] >= 80, 'eliminated': game.currentTotals[i] >= 100}">
-            {{ game.currentTotals[i] }}
-          </span>
+    <div class="game-screen" v-if="game">
+      
+      <div class="fixed-header">
+        <div class="top-bar">
+          <span class="game-id">Game #{{ game.gameId }}</span>
+          <button @click="showExitConfirm = true" class="btn-text">Sair</button>
+        </div>
+        <div class="scoreboard-summary">
+          <div v-for="(p, i) in game.players" :key="i" class="player-score-box">
+            <span class="p-name">{{ p }}</span>
+            <span class="p-total" :class="{'danger': game.currentTotals[i] >= 80, 'eliminated': game.currentTotals[i] >= 100}">
+              {{ game.currentTotals[i] }}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="history-container">
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th class="round-col">Rondas</th>
-            <th v-for="p in game.players" :key="p" class="player-header">
-              {{ p }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(item, rIndex) in historicoAcumulado" :key="rIndex">
-            <td class="round-num">{{ rIndex + 1 }}</td>
-            <td v-for="(totalJogador, sIndex) in item.totaisNaAltura" :key="sIndex">
-              <div class="score-cell" :class="{ 'hero-scribble': item.isCleanSweep && item.pontosNestaRonda[sIndex] === 0 }">
-                <span class="score-value">{{ item.pontosNestaRonda[sIndex] === 0 ? '-' : totalJogador }}</span>
-                <sup v-if="item.salemaIndex === sIndex || (item.isCleanSweep && item.pontosNestaRonda[sIndex] === 20)" 
-                     class="salema-star">*</sup>
-              </div>
-            </td>
-          </tr>
+      <div class="history-container">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th class="round-col">Rondas</th>
+              <th v-for="p in game.players" :key="p" class="player-header">
+                {{ p }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+          <template v-for="(item, rIndex) in historicoAcumulado" :key="rIndex">
+            <tr>
+              <td class="round-num">{{ rIndex + 1 }}</td>
+              <td v-for="(totalJogador, sIndex) in item.totaisNaAltura" :key="sIndex">
+                
+                <div class="score-cell" :class="{ 'hero-scribble': item.isCleanSweep && item.pontosNestaRonda[sIndex] === 0 }">
+                  <span class="score-value">{{ item.pontosNestaRonda[sIndex] === 0 ? '-' : totalJogador }}</span>
+                  
+                  <sup v-if="item.salemaIndex === sIndex || (item.isCleanSweep && item.pontosNestaRonda[sIndex] === 20)" 
+                       class="salema-star">*</sup>
+                  
+                  <sup v-if="item.reason && item.pontosNestaRonda[sIndex] === 20" 
+                       class="reason-icon" @click="mostrarMotivo(item.reason)">
+                       💬
+                  </sup>
+                </div>
+
+              </td>
+            </tr>
+          </template>
         </tbody>
-      </table>
-      <div style="height: 120px;"></div>
+        </table>
+        <div style="height: 120px;"></div>
+      </div>
+
+      <div class="action-buttons" v-if="game.status === 'ACTIVE'">
+        <button class="btn-anotar" @click="showModal = true">+ Anotar Ronda</button>
+        <button v-if="game.rounds.length > 0" @click="showUndoConfirm = true" class="btn-undo">
+          ↩ Anular Última Ronda
+        </button>
+      </div>
+      
+      <div v-if="game.status === 'FINISHED'" class="game-over-banner">
+        <h2> Jogo Terminado!</h2>
+        <button @click="store.exitGame()" class="btn-action">Voltar</button>
+      </div>
+
     </div>
 
-    <div class="action-buttons" v-if="game.status === 'ACTIVE'">
-      <button class="btn-anotar" @click="showModal = true">+ Anotar Ronda</button>
-      <button v-if="game.rounds.length > 0" @click="showUndoConfirm = true" class="btn-undo">
-        ↩ Anular Última Ronda
-      </button>
-    </div>
-    
-    <div v-if="game.status === 'FINISHED'" class="game-over-banner">
-      <h2> Jogo Terminado!</h2>
-      <button @click="store.exitGame()" class="btn-action">Voltar</button>
-    </div>
+    <AddRoundModal 
+      v-if="showModal" 
+      :players="game?.players || []" 
+      @close="showModal = false" 
+    />
 
-  </div>
+    <BaseModal 
+      v-if="showUndoConfirm"
+      title="Atenção"
+      text="Tens a certeza que queres anular a última ronda?"
+      confirmText="Sim, Anular"
+      @cancel="showUndoConfirm = false"
+      @confirm="confirmarUndo"
+    />
 
-  <AddRoundModal 
-    v-if="showModal" 
-    :players="game.players" 
-    @close="showModal = false" 
-  />
+    <BaseModal 
+      v-if="showExitConfirm"
+      title="Sair do Jogo"
+      text="Queres mesmo sair e voltar ao menu principal?"
+      confirmText="Sim, Sair"
+      @cancel="showExitConfirm = false"
+      @confirm="executarSair"
+    />
 
-  <BaseModal 
-    v-if="showUndoConfirm"
-    title="Atenção"
-    text="Tens a certeza que queres anular a última ronda?"
-    confirmText="Sim, Anular"
-    @cancel="showUndoConfirm = false"
-    @confirm="confirmarUndo"
-  />
+    <BaseModal 
+      v-if="showReasonModal"
+      title="Motivo dos 20"
+      :text="currentReason"
+      confirmText="Fechar"
+      @confirm="showReasonModal = false"
+      @cancel="showReasonModal = false"
+    />
 
-  <BaseModal 
-    v-if="showExitConfirm"
-    title="Sair do Jogo"
-    text="Queres mesmo sair e voltar ao menu principal?"
-    confirmText="Sim, Sair"
-    @cancel="showExitConfirm = false"
-    @confirm="executarSair"
-  />
-</template>
+  </div> </template>
 
 <script setup>
 import { ref, computed } from 'vue';
@@ -93,6 +115,8 @@ const game = computed(() => store.currentGame);
 const showModal = ref(false);
 const showUndoConfirm = ref(false);
 const showExitConfirm = ref(false);
+const showReasonModal = ref(false);
+const currentReason = ref('');
 
 const historicoAcumulado = computed(() => {
   if (!game.value) return [];
@@ -104,7 +128,8 @@ const historicoAcumulado = computed(() => {
       totaisNaAltura: novosTotais,
       pontosNestaRonda: ronda.scores,
       isCleanSweep: ronda.isCleanSweep,
-      salemaIndex: ronda.salemaIndex 
+      salemaIndex: ronda.salemaIndex,
+      reason: ronda.reason
     };
   });
 });
@@ -114,66 +139,115 @@ async function confirmarUndo() {
   await store.undoLastRound(); 
 }
 
+function mostrarMotivo(motivo) {
+  currentReason.value = motivo;
+  showReasonModal.value = true;
+}
+
 function executarSair() {
   showExitConfirm.value = false;
   store.exitGame();            
 }
+
+function mostrarMotivo(motivo) {
+  alert("Motivo dos 20:\n\n" + motivo);
+}
 </script>
 
 <style scoped>
-.game-screen { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-.fixed-header { background: #1a1a1a; padding: 10px; border-bottom: 1px solid #333; z-index: 10; }
-.top-bar { display: flex; justify-content: space-between; color: #888; font-size: 0.8rem; margin-bottom: 10px; }
-.btn-text { background: none; border: none; color: #aaa; text-decoration: underline; cursor:pointer;}
+.game-screen { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #030a11; }
+
+.fixed-header { 
+  background: rgba(5, 15, 25, 0.85); padding: 15px 10px; 
+  border-bottom: 1px solid rgba(76, 201, 240, 0.2); 
+  z-index: 10; backdrop-filter: blur(10px); 
+}
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.game-id { color: #4CC9F0; font-weight: bold; font-size: 0.9rem; letter-spacing: 1px; }
+.btn-text { background: none; border: none; color: #888; text-decoration: none; font-weight: bold; cursor: pointer; font-size: 0.9rem; }
+
 .scoreboard-summary { display: flex; justify-content: space-between; text-align: center; }
 .player-score-box { display: flex; flex-direction: column; width: 18%; }
-.p-name { font-size: 0.7rem; color: #aaa; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.p-total { font-size: 1.4rem; font-weight: bold; color: white; }
-.danger { color: #f39c12; }
-.eliminated { color: #e74c3c; text-decoration: line-through; }
+.p-name { font-size: 0.75rem; color: #4CC9F0; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 800; text-transform: uppercase; }
+.p-total { font-size: 1.5rem; font-weight: 900; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+.danger { color: #ef476f; animation: pulse 1.5s infinite; }
+.eliminated { color: #ef476f; text-decoration: line-through; opacity: 0.5; }
+
+@keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
 .history-container { flex: 1; overflow-y: auto; padding: 10px; }
-.history-table { width: 100%; border-collapse: collapse; text-align: center; font-size: 0.9rem; }
-.history-table th { color: #42b983; padding: 8px; border-bottom: 1px solid #444; position: sticky; top: 0; background: #1a1a1a; z-index: 5; }
-.history-table td { padding: 5px; border-bottom: 1px solid #333; vertical-align: middle; }
-.round-col { color: #666; font-size: 0.7rem; width: 30px;}
-.round-num { color: #666; font-size: 0.8rem; }
-
-.score-cell {
-  display: inline-flex; justify-content: center; align-items: center;
-  width: 35px; height: 35px; position: relative; font-weight: bold;
-  background: transparent; color: #ccc; font-size: 1.1rem;
+.history-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; font-size: 0.95rem; }
+.history-table th { 
+  color: #4CC9F0; padding: 12px 4px; border-bottom: 2px solid rgba(76, 201, 240, 0.3); 
+  position: sticky; top: 0; background: rgba(5, 15, 25, 0.95); z-index: 5; 
+  text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
 }
+.history-table th { 
+  color: #4CC9F0; 
+  padding: 12px 4px; 
+  border-bottom: 2px solid rgba(76, 201, 240, 0.3); 
+  position: sticky; 
+  top: 0; 
+  background: #030a11; 
+  z-index: 10; 
+  text-transform: uppercase; 
+  font-size: 0.8rem; 
+  letter-spacing: 1px;
+}
+.round-col { color: #888; width: 40px; }
+.round-num { color: #888; font-size: 0.85rem; font-weight: bold; }
+
+.score-cell { display: inline-flex; justify-content: center; align-items: center; width: 35px; height: 35px; position: relative; font-weight: bold; color: #ffffff; font-size: 1.1rem; }
 .score-value { z-index: 1; }
-.hero-scribble {
-  background: repeating-linear-gradient(135deg, #444, #444 4px, #666 4px, #666 6px);
-  color: transparent; border: 1px solid #555; border-radius: 4px; 
+.hero-scribble { 
+  background: repeating-linear-gradient(135deg, rgba(76, 201, 240, 0.1), rgba(76, 201, 240, 0.1) 4px, rgba(76, 201, 240, 0.2) 4px, rgba(76, 201, 240, 0.2) 6px); 
+  color: transparent; border: 1px solid rgba(76, 201, 240, 0.4); border-radius: 6px; 
 }
-.salema-star {
-  color: #e74c3c; font-size: 1.2rem; font-weight: bold;
-  position: absolute; top: -4px; right: -4px; line-height: 1; z-index: 2;
-  text-shadow: 1px 1px 1px rgba(0,0,0,0.8);
+.salema-star { color: #ef476f; font-size: 1.2rem; font-weight: 900; position: absolute; top: -5px; right: -5px; z-index: 2; text-shadow: 0 0 5px rgba(239, 71, 111, 0.6); }
+
+.action-buttons { 
+
+  width: 100%; 
+  padding: 15px 20px 30px 20px; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  gap: 15px; 
+  background: #030a11;
+  border-top: 1px solid rgba(76, 201, 240, 0.15); 
+  z-index: 20; 
 }
 
-.action-buttons {
-  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-  display: flex; flex-direction: column; align-items: center; gap: 12px;
-  z-index: 20; width: 100%;
+.btn-anotar { 
+  width: 100%; background: #4CC9F0; color: #0a1622; border: none; padding: 16px; 
+  border-radius: 30px; font-size: 1.1rem; font-weight: 900; text-transform: uppercase; 
+  letter-spacing: 1px; box-shadow: 0 8px 20px rgba(76, 201, 240, 0.3); cursor: pointer; 
+}
+.btn-undo { 
+  background-color: rgba(5, 15, 25, 0.8); color: #ef476f; border: 1px solid #ef476f; 
+  padding: 10px 25px; border-radius: 20px; font-size: 0.9rem; font-weight: bold; 
+  cursor: pointer; backdrop-filter: blur(5px);
 }
 
-.btn-anotar {
-  background: #3498db; color: white; border: none; padding: 15px 30px;
-  border-radius: 30px; font-size: 1.1rem; font-weight: bold;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.3); cursor: pointer;
+.btn-action { width: 100%; max-width: 300px; padding: 15px; background: #4CC9F0; color: #0a1622; border: none; border-radius: 12px; font-weight: 900; font-size: 1.1rem; cursor: pointer; text-transform: uppercase; }
+
+.reason-row td { padding: 0 4px 10px 4px; border: none; } .reason-text { color: #ef476f; font-size: 0.85rem; text-align: left; }
+
+.reason-icon {
+  position: absolute;
+  top: -8px;
+  right: -24px;
+  font-size: 1rem;
+  cursor: pointer;
+  filter: drop-shadow(0 0 5px rgba(76, 201, 240, 0.5));
 }
 
-.btn-undo {
-  background-color: rgba(26, 26, 26, 0.9); color: #e74c3c; border: 2px solid #e74c3c;
-  padding: 8px 20px; border-radius: 20px; font-size: 0.9rem; font-weight: bold;
-  cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+.game-over-banner { 
+  text-align: center; 
+  padding: 20px; 
+  background: #030a11;
+  border-top: 1px solid rgba(76, 201, 240, 0.15); 
+  width: 100%; 
+  z-index: 20; 
 }
-
-.btn-undo:hover { background-color: #e74c3c; color: white; }
-.game-over-banner { text-align: center; padding: 20px; background: #1a1a1a; }
-.btn-action { width: 100%; padding: 15px; background: #3498db; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 1.1rem; cursor: pointer; }
 </style>

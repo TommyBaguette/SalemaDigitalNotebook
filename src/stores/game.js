@@ -51,11 +51,11 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    async addRound(scores, salemaIndex) {
+    async addRound(scores, salemaIndex, motivo) {
       if (!this.currentGame) return;
       this.loading = true;
       try {
-        const data = await apiAddRound(this.currentGame.gameId, scores, salemaIndex);
+        const data = await apiAddRound(this.currentGame.gameId, scores, salemaIndex, motivo);
         this.currentGame = data.game; 
         return true;
       } catch (e) {

@@ -29,8 +29,8 @@ export async function apiCreateGame(players, location) {
   return request("createGame", { players, location });
 }
 
-export async function apiAddRound(gameId, roundScores, salemaPlayerIndex) {
-  return request("addRound", { gameId, roundScores, salemaPlayerIndex });
+export async function apiAddRound(gameId, roundScores, salemaPlayerIndex, reason = null) {
+  return request("addRound", { gameId, roundScores, salemaPlayerIndex, reason });
 }
 
 export async function apiGetRanking(mes = null) {
@@ -41,8 +41,9 @@ export async function apiGetAllPlayers() {
   return request("getAllPlayers");
 }
 
-export async function apiGetHistory() {
-  return request("getHistory");
+export async function apiGetHistory(mes = null) {
+  
+  return request("getHistory", { month: mes });
 }
 
 export async function apiGetActiveGames() {

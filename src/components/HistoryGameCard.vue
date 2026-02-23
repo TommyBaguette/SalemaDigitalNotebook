@@ -30,20 +30,26 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="round in getAcumulado(game)" :key="round.roundNumber">
-            <td class="r-idx">{{ round.roundNumber }}</td>
-            
-            <td v-for="(totalJogador, i) in round.totaisNaAltura" :key="i">
+          <template v-for="round in getAcumulado(game)" :key="round.roundNumber">
+            <tr>
+              <td class="r-idx">{{ round.roundNumber }}</td>
               
-              <div class="score-cell" :class="{ 'hero-scribble': round.isCleanSweep && round.pontosNestaRonda[i] === 0 }">
-                <span class="score-value">
-                  {{ round.pontosNestaRonda[i] === 0 ? '-' : totalJogador }}
-                </span>
-                <sup v-if="i === round.salemaIndex || (round.isCleanSweep && round.pontosNestaRonda[i] === 20)" class="salema-star">*</sup>
-              </div>
-
-            </td>
-          </tr>
+              <td v-for="(totalJogador, i) in round.totaisNaAltura" :key="i">
+                <div class="score-cell" :class="{ 'hero-scribble': round.isCleanSweep && round.pontosNestaRonda[i] === 0 }">
+                  <span class="score-value">
+                    {{ round.pontosNestaRonda[i] === 0 ? '-' : totalJogador }}
+                  </span>
+                  
+                  <sup v-if="i === round.salemaIndex || (round.isCleanSweep && round.pontosNestaRonda[i] === 20)" class="salema-star">*</sup>
+                  
+                  <sup v-if="round.reason && round.pontosNestaRonda[i] === 20" 
+                       class="reason-icon" @click.stop="mostrarMotivo(round.reason)">
+                       💬
+                  </sup>
+                </div>
+              </td>
+            </tr>
+          </template>
           
           <tr class="total-row">
             <td>=</td>
@@ -58,11 +64,20 @@
     <div class="expand-icon">
       {{ isExpanded ? '▲' : '▼' }}
     </div>
-  </div>
-</template>
-
+    
+  <BaseModal 
+      v-if="showReasonModal"
+      title="Motivo dos 20"
+      :text="currentReason"
+      confirmText="Fechar"
+      @confirm="showReasonModal = false"
+      @cancel="showReasonModal = false"
+    />
+    </div> 
+  </template>
 <script setup>
 import { ref } from 'vue';
+import BaseModal from './BaseModal.vue';
 
 const props = defineProps({
   game: {
@@ -72,6 +87,8 @@ const props = defineProps({
 });
 
 const isExpanded = ref(false);
+const showReasonModal = ref(false);
+const currentReason = ref('');
 
 function toggleExpand() {
   isExpanded.value = !isExpanded.value;
@@ -94,6 +111,11 @@ function getAcumulado(game) {
       pontosNestaRonda: ronda.scores
     };
   });
+}
+
+function mostrarMotivo(motivo) {
+  currentReason.value = motivo;
+  showReasonModal.value = true;
 }
 
 function getLosers(game) {
@@ -143,15 +165,15 @@ function getLosers(game) {
 .mini-score-item.is-loser { color: #ef476f; border-color: #ef476f; }
 
 .game-details { 
-  background: #F0F8FF; padding: 15px; border-top: 2px solid var(--primary-teal, #4cc9f0); 
+  background: #0a1622; padding: 15px; border-top: 2px solid var(--primary-teal, #4cc9f0); 
   animation: fadeIn 0.3s; cursor: default; 
 }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
 .rounds-table { width: 100%; border-collapse: collapse; text-align: center; }
-.rounds-table th { color: #005F73; padding: 8px 4px; border-bottom: 2px solid rgba(0, 0, 0, 0.1); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; }
-.rounds-table td { padding: 10px 4px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); color: #0B253A; font-size: 1rem; font-weight: 500; }
-.r-idx { color: #4A5568; font-size: 0.85rem; font-weight: bold; }
+.rounds-table th { color: #4CC9F0; padding: 8px 4px; border-bottom: 2px solid rgba(0, 0, 0, 0.1); font-weight: bold; font-size: 0.9rem; text-transform: uppercase; }
+.rounds-table td { padding: 10px 4px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); color: #ffffff; font-size: 1rem; font-weight: 500; }
+.r-idx { color: #888; font-size: 0.85rem; font-weight: bold; }
 
 .score-cell { position: relative; display: inline-block; min-width: 20px; }
 .score-value { z-index: 1; position: relative; }
@@ -164,8 +186,17 @@ function getLosers(game) {
 
 .salema-star { position: absolute; top: -5px; right: -8px; color: #E63946; font-weight: bold; font-size: 1rem; line-height: 1; }
 
-.total-row td { border-top: 2px solid #005F73; font-weight: bold; color: #0B253A; padding-top: 10px; }
+.total-row td { border-top: 2px solid #4CC9F0; font-weight: bold; color: #ffffff; padding-top: 10px; }
 .total-row .red-text { color: #E63946; }
 
 .expand-icon { text-align: center; color: #888; font-size: 0.8rem; margin-top: 5px; padding-bottom: 8px; }
+
+.reason-icon {
+  position: absolute;
+  top: -8px;
+  right: -22px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  z-index: 10;
+}
 </style>

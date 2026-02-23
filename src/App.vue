@@ -18,7 +18,11 @@
     <main class="content">
       <GameView v-if="store.currentGame" />
       
-      <router-view v-else /> 
+      <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+      </router-view>
     </main>
   </div>
 </template>
@@ -107,5 +111,16 @@ h1 span {
   0% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(1.2); }
   100% { opacity: 1; transform: scale(1); }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(10px);
 }
 </style>

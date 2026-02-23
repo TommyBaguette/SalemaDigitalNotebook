@@ -34,11 +34,16 @@ const mesSelecionado = ref(new Date().toISOString().slice(0, 7));
 async function carregarDados() {
   loading.value = true;
   try {
-    // Usamos apiGetHistory porque apiGetGames não existe no teu api.js
     const data = await apiGetHistory(mesSelecionado.value);
-    jogos.value = data.history || [];
+    const todosOsJogos = data.history || [];
+    jogos.value = todosOsJogos.filter(jogo => {
+      if (!jogo.createdAt) return false;
+      return jogo.createdAt.startsWith(mesSelecionado.value);
+    });
+
   } catch (e) {
     console.error("Erro no histórico:", e);
+    jogos.value = [];
   } finally {
     loading.value = false;
   }

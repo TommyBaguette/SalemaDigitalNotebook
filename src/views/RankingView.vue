@@ -9,7 +9,7 @@
       </div>
     </div>
     
-    <div v-if="loading" class="loading-text">A lançar as redes... 🕸️</div>
+    <div v-if="loading" class="loading-text">A carregar... </div>
     
     <div v-else-if="lista.length === 0" class="empty-state">
       Mar calmo. Nenhum jogo registado neste mês.
@@ -28,6 +28,10 @@
               
               <th class="col-stat clickable" @click="ordenar('gamesPlayed')" title="Jogos Jogados">
                 J <span v-if="colunaAtual === 'gamesPlayed'">{{ getSeta('gamesPlayed') }}</span>
+              </th>
+
+              <th class="col-stat clickable" @click="ordenar('losses')" title="Derrotas">
+                D <span v-if="colunaAtual === 'losses'">{{ getSeta('losses') }}</span>
               </th>
 
               <th class="col-stat clickable" @click="ordenar('maisMenos')" title="Eficiência (+/-)">
@@ -51,8 +55,8 @@
             <tr v-for="(p, i) in listaOrdenada" :key="p.nickname" :class="getRowClass(i, listaOrdenada.length)">
               <td class="col-rank">
                 <template v-if="colunaAtual === 'maisMenos' && ordemDesc">
-                  <span v-if="i === 0" class="rank-icon" title="Megalodon">🦈</span>
-                  <span v-else-if="i === 1 || i === 2" class="rank-icon" title="Big Fish">🐋</span>
+                  <span v-if="i === 0" class="rank-icon" title="Baleia">🐋</span>
+                  <span v-else-if="i === 1 || i === 2" class="rank-icon" title="Tubarao">🦈</span>
                   
                   <span v-else-if="i === listaOrdenada.length - 1" class="rank-icon" title="Areia">🏖️</span>
                   
@@ -68,6 +72,7 @@
               
               <td class="col-name">{{ p.nickname }}</td>
               <td class="col-stat">{{ p.gamesPlayed || 0 }}</td>
+              <td class="col-stat val-neg">{{ p.losses || 0 }}</td>
               
               <td class="col-stat font-bold" :class="getMaisMenosColor(calculaMaisMenos(p))">
                 {{ formatMaisMenos(calculaMaisMenos(p)) }}
@@ -82,7 +87,7 @@
       </div>
       
       <p class="legend">
-        <small>🂭 Salemas </small>
+        <small><span>J -</span> Jogos | 🂭 - Salemas | <span>D -</span> Derrotas </small>
       </p>
     </div>
   </div>

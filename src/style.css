@@ -1,8 +1,7 @@
 :root {
-  /* Paleta Oceano Profundo */
-  --bg-deep: #021019;       /* Fundo quase preto */
-  --bg-ocean: #0a253a;      /* Azul Marinho */
-  --card-glass: rgba(16, 40, 60, 0.75); /* Vidro Translúcido */
+  --bg-deep: #021019;   
+  --bg-ocean: #0a253a;
+  --card-glass: rgba(16, 40, 60, 0.75);
   --border-glass: rgba(255, 255, 255, 0.1);
   
   --primary-teal: #4CC9F0;

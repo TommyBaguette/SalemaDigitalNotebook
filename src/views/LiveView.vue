@@ -38,16 +38,28 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.live-container { padding: 20px; padding-bottom: 80px; }
-.live-header { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
-.live-header h3 { color: #42b983; margin: 0; }
-.pulse-icon { width: 12px; height: 12px; background: #e74c3c; border-radius: 50%; animation: pulse 1.5s infinite; }
-
-@keyframes pulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(231, 76, 60, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
+.live-container { 
+  padding: 10px; 
+  padding-bottom: 80px; 
+  max-width: 600px; 
+  margin: 0 auto; 
 }
 
-.empty-state { text-align: center; color: #666; margin-top: 50px; }
+h3 { 
+  text-align: center; 
+  color: #4CC9F0; 
+  margin-bottom: 25px; 
+  text-transform: uppercase; 
+  letter-spacing: 2px;
+  font-weight: bold;
+}
+
+.no-games {
+  text-align: center;
+  color: #888;
+  padding: 40px 20px;
+  background: rgba(5, 15, 25, 0.6);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.1);
+}
 </style>
