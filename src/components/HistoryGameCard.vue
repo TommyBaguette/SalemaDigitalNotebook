@@ -161,15 +161,21 @@ function getLosers(game) {
 
 .mini-scores { 
   display: flex; 
-  flex-wrap: nowrap; 
-  justify-content: space-between; 
-  gap: 4px; 
+  flex-wrap: wrap; 
+  justify-content: center;
+  gap: 8px; 
   padding: 10px 15px 15px 15px; 
-  overflow-x: auto;
 }
+
 .mini-score-item { 
-  background: rgba(0, 0, 0, 0.4); color: #fff; padding: 4px 6px; border-radius: 6px; 
-  font-size: 0.85rem; border: 1px solid #444; white-space: nowrap; 
+  background: rgba(0, 0, 0, 0.4); 
+  color: #fff; 
+  padding: 4px 12px; 
+  border-radius: 6px; 
+  font-size: 0.85rem; 
+  border: 1px solid #444; 
+  white-space: nowrap; 
+  text-align: center; 
 }
 .mini-score-item.is-loser { color: #ef476f; border-color: #ef476f; }
 

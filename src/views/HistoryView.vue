@@ -56,7 +56,20 @@ onMounted(carregarDados);
 .history-container { padding: 10px; padding-bottom: 80px; max-width: 600px; margin: 0 auto; }
 h3 { text-align: center; color: #4CC9F0; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 2px; }
 .month-selector { text-align: center; margin-bottom: 20px; }
-.month-selector input { background: #1a1a1a; color: white; border: 1px solid #333; padding: 5px 10px; border-radius: 10px; }
+.month-selector input { 
+  background: rgba(0,0,0,0.3); 
+  color: white; 
+  border: 1px solid #4CC9F0; 
+  padding: 5px 10px; 
+  border-radius: 20px; 
+  outline: none; 
+  min-width: 165px; 
+  text-align: center; 
+  font-family: inherit; 
+}
+.month-selector input::-webkit-calendar-picker-indicator { 
+  filter: invert(1); 
+}
 .games-list { display: flex; flex-direction: column; gap: 15px; }
 .loading, .empty { text-align: center; color: #888; margin-top: 40px; }
 </style>

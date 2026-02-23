@@ -241,8 +241,15 @@ onMounted(() => { carregarRanking(); });
 }
 
 .input-mes {
-  background: rgba(0,0,0,0.3); border: 1px solid var(--primary-teal);
-  color: white; padding: 5px 10px; border-radius: 20px; outline: none;
+  background: rgba(0,0,0,0.3); 
+  border: 1px solid var(--primary-teal);
+  color: white; 
+  padding: 5px 10px; 
+  border-radius: 20px; 
+  outline: none;
+  min-width: 165px;
+  text-align: center; 
+  font-family: inherit;
 }
 .input-mes::-webkit-calendar-picker-indicator { filter: invert(1); }
 
