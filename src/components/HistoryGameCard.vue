@@ -177,6 +177,7 @@ function getLosers(game) {
   white-space: nowrap; 
   text-align: center; 
 }
+
 .mini-score-item.is-loser { color: #ef476f; border-color: #ef476f; }
 
 .game-details { 
