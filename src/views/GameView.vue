@@ -149,9 +149,6 @@ function executarSair() {
   store.exitGame();            
 }
 
-function mostrarMotivo(motivo) {
-  alert("Motivo dos 20:\n\n" + motivo);
-}
 </script>
 
 <style scoped>
