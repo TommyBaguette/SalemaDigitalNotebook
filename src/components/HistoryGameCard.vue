@@ -7,7 +7,7 @@
     <div class="game-header">
       <div class="header-left">
        <span class="date">{{ formatDate(game.createdAt) }}</span>
-       <span class="game-id">#{{ game.gameId }} • {{ game.location || 'Não definido' }}</span>
+       <span class="game-location">📍 {{ game.location || 'Local desconhecido' }}</span>
       </div>
       
       <div class="loser-badge" v-if="getLosers(game).length > 0">
@@ -143,7 +143,16 @@ function getLosers(game) {
 .game-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 15px 5px 15px; }
 .header-left { display: flex; flex-direction: column; }
 .date { font-size: 0.9rem; color: var(--primary-teal, #4cc9f0); font-weight: bold; }
-.game-id { font-size: 0.8rem; color: #888; margin-top: 2px; }
+.game-location { 
+  font-size: 0.85rem; 
+  color: #a0aab5;
+  margin-top: 4px; 
+  display: flex; 
+  align-items: center; 
+  gap: 4px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
 
 .loser-badge { 
   background: rgba(239, 71, 111, 0.15); color: #ef476f; border: 1px solid rgba(239, 71, 111, 0.3);
