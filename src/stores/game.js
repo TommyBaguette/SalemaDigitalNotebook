@@ -2,15 +2,19 @@ import { defineStore } from 'pinia';
 import { apiCreateGame, apiAddRound, apiGetAllPlayers, apiGetRanking, apiGetActiveGames, apiUndoRound } from '../services/api';
 
 export const useGameStore = defineStore('game', {
-  state: () => ({
-    currentGame: null,  
-    playersList: [],
-    ranking: [],    
-    history: [],    
-    activeGames: [],
-    loading: false,      
-    error: null
-  }),
+  state: () => {
+    const savedGame = localStorage.getItem('salema_jogo_ativo');
+    
+    return {
+      currentGame: savedGame ? JSON.parse(savedGame) : null,  
+      playersList: [],
+      ranking: [],    
+      history: [],    
+      activeGames: [],
+      loading: false,      
+      error: null
+    };
+  },
 
   actions: {
     async fetchPlayers() {
@@ -25,12 +29,10 @@ export const useGameStore = defineStore('game', {
       }
     },
 
-    
-
     async fetchHistory() {
       this.loading = true;
       try {
-        const data = await apiGetHistory();
+        const data = await apiGetHistory(); 
         this.history = data.history || [];
       } catch (e) {
         console.error(e);
@@ -44,6 +46,8 @@ export const useGameStore = defineStore('game', {
       try {
         const data = await apiCreateGame(selectedPlayers, location);
         this.currentGame = data.game; 
+        
+        localStorage.setItem('salema_jogo_ativo', JSON.stringify(data.game));
       } catch (e) {
         alert(e.message);
       } finally {
@@ -57,6 +61,8 @@ export const useGameStore = defineStore('game', {
       try {
         const data = await apiAddRound(this.currentGame.gameId, scores, salemaIndex, motivo);
         this.currentGame = data.game; 
+        
+        localStorage.setItem('salema_jogo_ativo', JSON.stringify(data.game));
         return true;
       } catch (e) {
         alert("Erro na ronda: " + e.message);
@@ -81,6 +87,8 @@ export const useGameStore = defineStore('game', {
     exitGame() {
       this.currentGame = null;
       this.ranking = [];
+      
+      localStorage.removeItem('salema_jogo_ativo');
     },
 
     async fetchActiveGames() {
@@ -93,18 +101,17 @@ export const useGameStore = defineStore('game', {
     },
 
     async undoLastRound() {
-       if (!this.currentGame || !this.currentGame.rounds.length) return;
+      if (!this.currentGame || !this.currentGame.rounds.length) return;
 
       try {
-         const data = await apiUndoRound(this.currentGame.gameId);
-         this.currentGame = data.game; 
-          } catch (e) {
-          console.error("Erro ao anular ronda:", e);
-          alert(e.message);
+        const data = await apiUndoRound(this.currentGame.gameId);
+        this.currentGame = data.game; 
+        
+        localStorage.setItem('salema_jogo_ativo', JSON.stringify(data.game));
+      } catch (e) {
+        console.error("Erro ao anular ronda:", e);
+        alert(e.message);
+      }
+    }
   }
-}
-
-    
-  }
-  
 });
