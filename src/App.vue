@@ -18,7 +18,7 @@
     <main class="content">
       <GameView v-if="store.currentGame" />
       
-      <router-view v-slot="{ Component }">
+      <router-view v-else v-slot="{ Component }">
           <transition name="fade" mode="out-in">
             <component :is="Component" />
           </transition>
@@ -28,18 +28,28 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted, watch } from 'vue';
 import { useGameStore } from './stores/game';
 import GameView from './views/GameView.vue';
 
 const store = useGameStore();
+let pollingTimer = null;
 
 onMounted(() => {
   store.fetchActiveGames();
-  setInterval(() => {
+  pollingTimer = setInterval(() => {
     store.fetchActiveGames();
   }, 10000);
 });
+
+onUnmounted(() => {
+  if (pollingTimer) clearInterval(pollingTimer);
+});
+
+// Bloquear scroll do body quando um jogo está ativo (evita ver outras views por baixo)
+watch(() => store.currentGame, (game) => {
+  document.body.style.overflow = game ? 'hidden' : '';
+}, { immediate: true });
 </script>
 
 <style scoped>

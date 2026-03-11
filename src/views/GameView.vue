@@ -179,18 +179,7 @@ function executarSair() {
   position: sticky; top: 0; background: rgba(5, 15, 25, 0.95); z-index: 5; 
   text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;
 }
-.history-table th { 
-  color: #4CC9F0; 
-  padding: 12px 4px; 
-  border-bottom: 2px solid rgba(76, 201, 240, 0.3); 
-  position: sticky; 
-  top: 0; 
-  background: #030a11; 
-  z-index: 10; 
-  text-transform: uppercase; 
-  font-size: 0.8rem; 
-  letter-spacing: 1px;
-}
+
 .round-col { color: #888; width: 40px; }
 .round-num { color: #888; font-size: 0.85rem; font-weight: bold; }
 

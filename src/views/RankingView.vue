@@ -209,7 +209,7 @@ function getValorOrdenacao(player, coluna) {
 const listaOrdenada = computed(() => {
   const listaLimpa = lista.value.filter(p => {
     const score = parseFloat(calculaMaisMenos(p));
-    return score !== 0; 
+    return p.gamesPlayed && p.gamesPlayed > 0; 
   });
 
   return listaLimpa.sort((a, b) => {
