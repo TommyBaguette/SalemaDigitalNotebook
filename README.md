@@ -1,5 +1,24 @@
-# Vue 3 + Vite
+# SalemaDigitalNotebook
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+A personal web application built to score and track a card game played with a group of friends. What started as a simple notebook replacement turned into a full-stack project with real-time features and cloud infrastructure.
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## Features
+- Create and manage games with multiple players
+- Live game view with real-time score updates
+- Full game history and player ranking
+- Live spectator mode to watch ongoing games
+- Feedback system
+
+## Tech Stack
+
+**Frontend** — Vue 3, Vite, Pinia, Vue Router
+
+**Cloud** — AWS DynamoDB, AWS Lambda, AWS Amplify
+
+## How to Run
+```bash
+npm install
+npm run dev
+```
+
+> Note: AWS credentials are required for DynamoDB access. The app will not connect to the database without proper configuration.
