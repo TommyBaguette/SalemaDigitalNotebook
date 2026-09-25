@@ -31,7 +31,6 @@ const slots = computed(() => {
   <section class="abyss" aria-label="Fundo do mar: os três últimos classificados">
     <header class="head">
       <h4>Fundo do Mar</h4>
-      <p>Onde acabam os últimos da cadeia alimentar</p>
     </header>
 
     <div class="depth" role="list">
