@@ -47,8 +47,23 @@ onUnmounted(() => {
 });
 
 // Bloquear scroll do body quando um jogo está ativo (evita ver outras views por baixo)
+// Nota: usamos position:fixed em vez de overflow:hidden porque overflow:hidden no
+// <body> bloqueia gestos de touch/drag em mobile (iOS Safari em particular), mesmo
+// dentro de elementos filhos com overflow-y:auto (como a tabela de histórico do jogo).
+let scrollY = 0;
+
 watch(() => store.currentGame, (game) => {
-  document.body.style.overflow = game ? 'hidden' : '';
+  if (game) {
+    scrollY = window.scrollY;
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.width = '100%';
+  } else {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    window.scrollTo(0, scrollY);
+  }
 }, { immediate: true });
 </script>
 

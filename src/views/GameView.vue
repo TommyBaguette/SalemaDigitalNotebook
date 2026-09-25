@@ -152,6 +152,7 @@ function executarSair() {
 </script>
 
 <style scoped>
+<<<<<<< HEAD
 /* position:fixed + inset:0 ocupa exatamente a área VISÍVEL (ao contrário de 100vh, que em
    mobile inclui a zona atrás da barra do browser e empurrava os botões para fora do ecrã). */
 .game-screen {
@@ -165,6 +166,9 @@ function executarSair() {
   overscroll-behavior: contain;
   background: #030a11;
 }
+=======
+.game-screen { display: flex; flex-direction: column; height: 100vh; overflow: hidden; overscroll-behavior: contain; background: #030a11; }
+>>>>>>> 36de67112fb77fbb087071e38e8514247374bfbc
 
 .fixed-header { 
   background: rgba(5, 15, 25, 0.85); padding: 15px 10px; 
@@ -186,7 +190,10 @@ function executarSair() {
 
 .history-container {
   flex: 1;
+<<<<<<< HEAD
   min-height: 0; /* permite à tabela encolher e fazer scroll em vez de empurrar os botões */
+=======
+>>>>>>> 36de67112fb77fbb087071e38e8514247374bfbc
   overflow-y: auto;
   padding: 10px;
   overscroll-behavior-y: contain; /* impede que o gesto "passe" para o body quando chega ao limite */
