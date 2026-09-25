@@ -51,7 +51,7 @@
           </template>
         </tbody>
         </table>
-        <div style="height: 120px;"></div>
+        <div style="height: 12px;"></div>
       </div>
 
       <div class="action-buttons" v-if="game.status === 'ACTIVE'">
@@ -152,7 +152,19 @@ function executarSair() {
 </script>
 
 <style scoped>
-.game-screen { display: flex; flex-direction: column; height: 100vh; overflow: hidden; background: #030a11; }
+/* position:fixed + inset:0 ocupa exatamente a área VISÍVEL (ao contrário de 100vh, que em
+   mobile inclui a zona atrás da barra do browser e empurrava os botões para fora do ecrã). */
+.game-screen {
+  position: fixed;
+  inset: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: #030a11;
+}
 
 .fixed-header { 
   background: rgba(5, 15, 25, 0.85); padding: 15px 10px; 
@@ -172,7 +184,14 @@ function executarSair() {
 
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
 
-.history-container { flex: 1; overflow-y: auto; padding: 10px; }
+.history-container {
+  flex: 1;
+  min-height: 0; /* permite à tabela encolher e fazer scroll em vez de empurrar os botões */
+  overflow-y: auto;
+  padding: 10px;
+  overscroll-behavior-y: contain; /* impede que o gesto "passe" para o body quando chega ao limite */
+  -webkit-overflow-scrolling: touch; /* scroll suave/momentum em iOS */
+}
 .history-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: center; font-size: 0.95rem; }
 .history-table th { 
   color: #4CC9F0; padding: 12px 4px; border-bottom: 2px solid rgba(76, 201, 240, 0.3); 
@@ -192,7 +211,7 @@ function executarSair() {
 .salema-star { color: #ef476f; font-size: 1.2rem; font-weight: 900; position: absolute; top: -5px; right: -5px; z-index: 2; text-shadow: 0 0 5px rgba(239, 71, 111, 0.6); }
 
 .action-buttons { 
-
+  flex-shrink: 0; /* nunca é comprimido: os dois botões ficam sempre visíveis */
   width: 100%; 
   padding: 15px 20px 30px 20px; 
   display: flex; 
@@ -229,6 +248,7 @@ function executarSair() {
 }
 
 .game-over-banner { 
+  flex-shrink: 0;
   text-align: center; 
   padding: 20px; 
   background: #030a11;

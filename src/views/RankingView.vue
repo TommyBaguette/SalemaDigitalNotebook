@@ -16,6 +16,8 @@
     </div>
 
     <div v-else>
+      <RankingPodium v-if="podio.length >= 3" :players="podio" />
+
       <div class="table-responsive">
         <table class="ranking-table">
           <thead>
@@ -86,8 +88,14 @@
         </table>
       </div>
       
+      <RankingSeabed v-if="fundo.length > 0" :players="fundo" />
+
       <p class="legend">
         <small><span>J -</span> Jogos | 🂭 - Salemas | <span>D -</span> Derrotas </small>
+      </p>
+
+      <p v-if="foraDoRanking.length" class="legend fora">
+        <small>Fora do ranking (menos de {{ minJogos }} jogos): {{ foraDoRanking.map(p => p.nickname).join(', ') }}</small>
       </p>
     </div>
   </div>
@@ -96,12 +104,25 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { apiGetRanking } from '../services/api';
+import RankingPodium from '../components/RankingPodium.vue';
+import RankingSeabed from '../components/RankingSeabed.vue';
 
 const lista = ref([]);
 const mesSelecionado = ref(new Date().toISOString().slice(0, 7));
 const loading = ref(false);
 const colunaAtual = ref('maisMenos'); 
 const ordemDesc = ref(true);
+
+// Só entra no ranking quem jogou, pelo menos, esta fração dos jogos de quem mais jogou no mês.
+// Evita que alguém com 1 jogo (ex.: 1 derrota = 100%) distorça o ranking e os índices de todos.
+const MIN_PERCENT_JOGOS = 0.3;
+
+const minJogos = computed(() => {
+  const maxJogos = Math.max(0, ...lista.value.map(p => p.gamesPlayed || 0));
+  return Math.max(1, Math.ceil(maxJogos * MIN_PERCENT_JOGOS));
+});
+const elegiveis = computed(() => lista.value.filter(p => (p.gamesPlayed || 0) >= minJogos.value));
+const foraDoRanking = computed(() => lista.value.filter(p => p.gamesPlayed > 0 && p.gamesPlayed < minJogos.value));
 
 async function carregarRanking() {
   loading.value = true;
@@ -120,7 +141,7 @@ async function carregarRanking() {
 const maxStats = computed(() => {
   let maxJ = 0, maxH = 0, maxK = 0, maxI = 0;
   
-  lista.value.forEach(p => {
+  elegiveis.value.forEach(p => {
     if (p.gamesPlayed > 0) {
       const j = p.losses / p.gamesPlayed;       
       const h = p.totalPoints / p.gamesPlayed;
@@ -147,7 +168,7 @@ function calculaMaisMenos(p) {
 
 
   const { maxJ, maxH, maxK, maxI } = maxStats.value;
-  const fatorJ = maxJ > 0 ? (J2 / Math.pow(maxJ, 2)) : 0;
+  const fatorJ = maxJ > 0 ? (J2 / maxJ) : 0; // normalizado em [0,1], como os outros fatores
   const fatorH = maxH > 0 ? (H2 / maxH) : 0;
   const fatorK = maxK > 0 ? (K2 / maxK) : 0;
   const fatorI = maxI > 0 ? (I2 / maxI) : 0;
@@ -207,17 +228,32 @@ function getValorOrdenacao(player, coluna) {
 }
 
 const listaOrdenada = computed(() => {
-  const listaLimpa = lista.value.filter(p => {
-    const score = parseFloat(calculaMaisMenos(p));
-    return p.gamesPlayed && p.gamesPlayed > 0; 
-  });
-
-  return listaLimpa.sort((a, b) => {
+  // cópia, para nunca ordenar in-place o array cacheado de `elegiveis`
+  return [...elegiveis.value].sort((a, b) => {
     let valA = getValorOrdenacao(a, colunaAtual.value);
     let valB = getValorOrdenacao(b, colunaAtual.value);
     return ordemDesc.value ? valB - valA : valA - valB;
   });
 });
+
+// Classificação pelo índice +/- (independente da coluna escolhida na tabela)
+const rankingPorScore = computed(() =>
+  elegiveis.value
+    .map(p => ({ ...p, score: calculaMaisMenos(p) }))
+    .sort((a, b) => b.score - a.score)
+);
+
+// Pódio: os 3 primeiros
+const podio = computed(() => rankingPorScore.value.slice(0, 3));
+
+// Fundo do mar: os 3 últimos, do pior para o menos mau, sem repetir quem está no pódio
+const fundo = computed(() =>
+  rankingPorScore.value
+    .map((p, i) => ({ ...p, rank: i + 1 }))
+    .slice(3)
+    .slice(-3)
+    .reverse()
+);
 
 onMounted(() => { carregarRanking(); });
 </script>
@@ -275,5 +311,6 @@ td:last-child { border-radius: 0 10px 10px 0; }
 .row-sand td { background: rgba(255, 209, 102, 0.05); opacity: 1; }
 .row-shrimp td { background: rgba(239, 71, 111, 0.05); opacity: 1; }
 
+.legend.fora { margin-top: 6px; opacity: 0.8; }
 .legend { margin-top: 20px; color: var(--text-muted); font-size: 0.8rem; letter-spacing: 0.5px; }
 </style>
