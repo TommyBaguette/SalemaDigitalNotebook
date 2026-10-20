@@ -155,7 +155,11 @@ function executarSair() {
 
 .game-screen {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100vh;   
+  height: 100dvh; 
   max-width: 600px;
   margin: 0 auto;
   display: flex;
@@ -164,8 +168,6 @@ function executarSair() {
   overscroll-behavior: contain;
   background: #030a11;
 }
-
-.game-screen { display: flex; flex-direction: column; height: 100vh; overflow: hidden; overscroll-behavior: contain; background: #030a11; }
 
 
 .fixed-header { 
@@ -213,9 +215,9 @@ function executarSair() {
 .salema-star { color: #ef476f; font-size: 1.2rem; font-weight: 900; position: absolute; top: -5px; right: -5px; z-index: 2; text-shadow: 0 0 5px rgba(239, 71, 111, 0.6); }
 
 .action-buttons { 
-  flex-shrink: 0; /* nunca é comprimido: os dois botões ficam sempre visíveis */
+  flex-shrink: 0;
   width: 100%; 
-  padding: 15px 20px 30px 20px; 
+  padding: 15px 20px calc(20px + env(safe-area-inset-bottom, 0px)) 20px;
   display: flex; 
   flex-direction: column; 
   align-items: center; 
